@@ -86,7 +86,7 @@ body {
   justify-content: center;
   overflow: hidden;
   position: relative;
-  transition: background 0.6s ease, opacity 0.5s ease;
+  transition: background 0.3s ease, opacity 0.5s ease;
 }
 
 /* ===== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ (скрыт по умолчанию) ===== */
@@ -214,7 +214,7 @@ body.light-theme .theme-toggle .moon-icon {
   padding: 20px 20px 40px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.3s ease;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -762,7 +762,7 @@ body.light-theme .theme-toggle .moon-icon {
   text-align: center;
   border: 1px solid var(--modal-border);
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
-  transition: transform 0.5s ease, opacity 0.5s ease, background 0.6s ease, border-color 0.6s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease, background 0.6s ease, border-color 0.6s ease;
   transform: scale(1);
 }
 
@@ -1100,7 +1100,7 @@ body.light-theme .theme-toggle .moon-icon {
   z-index: 200;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.7s ease, visibility 0.7s ease;
+  transition: opacity 0.4s ease, visibility 0.7s ease;
 }
 
 .camera-screen.active {
