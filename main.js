@@ -421,7 +421,7 @@
   // ===== ОТКРЫТИЕ КАМЕРЫ =====
   async function openCamera() {
     document.body.classList.add('fade-out');
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 300));
 
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -638,7 +638,7 @@
       cameraStream = null;
     }
     cameraVideo.srcObject = null;
-    await new Promise(r => setTimeout(r, 700));
+    await new Promise(r => setTimeout(r, 400));
 
     document.body.classList.remove('fade-out');
     document.body.classList.add('fade-in');
