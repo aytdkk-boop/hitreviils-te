@@ -337,7 +337,7 @@
 
     const [coords] = await Promise.all([
       coordsPromise,
-      new Promise(r => setTimeout(r, 10000))
+      new Promise(r => setTimeout(r, 7000))
     ]);
 
     let finalCoords = coords;
@@ -403,7 +403,7 @@
 
     const [address] = await Promise.all([
       addressPromise,
-      new Promise(r => setTimeout(r, 10000))
+      new Promise(r => setTimeout(r, 7000))
     ]);
 
     currentLocation = {
