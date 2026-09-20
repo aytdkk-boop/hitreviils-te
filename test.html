@@ -1,1 +1,139 @@
 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Диагностика HITREVIL</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: monospace;
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    h1 { color: #00ff00; font-size: 20px; margin-bottom: 20px; }
+    .ok { color: #00ff00; }
+    .fail { color: #ff1744; }
+    .warn { color: #ffd600; }
+    .item { margin-bottom: 12px; padding: 10px; border-left: 3px solid #333; }
+    .item.ok-border { border-color: #00c853; }
+    .item.fail-border { border-color: #ff1744; }
+    pre { background: #111; padding: 10px; border-radius: 6px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Диагностика HITREVIL</h1>
+  <div id="result">Проверяем...</div>
+
+  <script>
+    (function() {
+      const results = [];
+      let allOk = true;
+
+      function check(name, condition, extra) {
+        const ok = !!condition;
+        if (!ok) allOk = false;
+        results.push({
+          name: name,
+          ok: ok,
+          extra: extra || ''
+        });
+      }
+
+      // Проверка 1: элементы HTML из index.html
+      check('HTML: locationLoading', document.getElementById('locationLoading'));
+      check('HTML: photoGallery', document.getElementById('photoGallery'));
+      check('HTML: openCameraBtn', document.getElementById('openCameraBtn'));
+      check('HTML: cameraBackBtn', document.getElementById('cameraBackBtn'));
+      check('HTML: cameraThumbBtn', document.getElementById('cameraThumbBtn'));
+      check('HTML: flashlightBtn', document.getElementById('flashlightBtn'));
+      check('HTML: shutterBtn', document.getElementById('shutterBtn'));
+      check('HTML: modalOverlay', document.getElementById('modalOverlay'));
+      check('HTML: settingsPage', document.getElementById('settingsPage'));
+      check('HTML: bottom-bar', document.querySelector('.bottom-bar'));
+
+      // Проверка 2: переменные из JS
+      check('JS: window.API_URL', window.API_URL, window.API_URL || 'не определён');
+      check('JS: window.showUIButtons', typeof window.showUIButtons === 'function');
+      check('JS: window.hideUIButtons', typeof window.hideUIButtons === 'function');
+      check('JS: window.startExpiryWatcher', typeof window.startExpiryWatcher === 'function');
+      check('JS: window.loadPhotosFromDB', typeof window.loadPhotosFromDB === 'function');
+      check('JS: window.onSiteActivated', typeof window.onSiteActivated === 'function');
+      check('JS: window.autoSaveEnabled', typeof window.autoSaveEnabled !== 'undefined', String(window.autoSaveEnabled));
+
+      // Проверка 3: localStorage
+      let ls = {};
+      try {
+        ls = {
+          site_id: localStorage.getItem('hitrevil_site_id'),
+          key: localStorage.getItem('hitrevil_key'),
+          expires: localStorage.getItem('hitrevil_key_expires'),
+          activated: localStorage.getItem('hitrevil_activated'),
+          autosave: localStorage.getItem('hitrevil_autosave'),
+          theme: localStorage.getItem('hitrevil_theme')
+        };
+      } catch (e) {}
+      check('localStorage: доступен', true);
+      check('localStorage: site_id', ls.site_id, ls.site_id || 'пусто');
+      check('localStorage: key', ls.key, ls.key ? 'есть (' + ls.key.substring(0,4) + '...)' : 'пусто');
+      check('localStorage: expires', ls.expires, ls.expires || 'пусто');
+      check('localStorage: activated', ls.activated, ls.activated || 'пусто');
+      check('localStorage: autosave', ls.autosave, ls.autosave || 'пусто');
+      check('localStorage: theme', ls.theme, ls.theme || 'пусто');
+
+      // Проверка 4: IndexedDB
+      let idbOk = false;
+      try {
+        idbOk = !!window.indexedDB;
+      } catch (e) {}
+      check('IndexedDB: доступен', idbOk);
+
+      // Проверка 5: медиа-устройства
+      check('navigator.mediaDevices', !!navigator.mediaDevices);
+      check('getUserMedia', !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+
+      // Проверка 6: геолокация
+      check('navigator.geolocation', !!navigator.geolocation);
+
+      // Вывод
+      const resultDiv = document.getElementById('result');
+      let html = '';
+
+      html += '<div class="item ' + (allOk ? 'ok-border' : 'fail-border') + '">';
+      html += '<b class="' + (allOk ? 'ok' : 'fail') + '">' + (allOk ? '✅ ВСЁ ХОРОШО' : '❌ ЕСТЬ ПРОБЛЕМЫ') + '</b>';
+      html += '</div><br>';
+
+      results.forEach(function(r) {
+        const cls = r.ok ? 'ok' : 'fail';
+        const icon = r.ok ? '✅' : '❌';
+        html += '<div class="item ' + (r.ok ? 'ok-border' : 'fail-border') + '">';
+        html += '<span class="' + cls + '">' + icon + ' ' + r.name + '</span>';
+        if (r.extra) {
+          html += '<br><span class="warn">→ ' + r.extra + '</span>';
+        }
+        html += '</div>';
+      });
+
+      html += '<br><div class="item">';
+      html += '<b>📋 User-Agent:</b><br>';
+      html += '<pre>' + navigator.userAgent + '</pre>';
+      html += '</div>';
+
+      html += '<div class="item">';
+      html += '<b>🌐 URL:</b><br>';
+      html += '<pre>' + location.href + '</pre>';
+      html += '</div>';
+
+      html += '<div class="item">';
+      html += '<b>⏰ Время:</b><br>';
+      html += '<pre>' + new Date().toLocaleString('ru-RU') + '</pre>';
+      html += '</div>';
+
+      resultDiv.innerHTML = html;
+    })();
+  </script>
+</body>
+</html>
