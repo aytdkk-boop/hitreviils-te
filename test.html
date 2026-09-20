@@ -3,136 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Диагностика HITREVIL</title>
+  <title>Диагностика HITREVIL v2</title>
   <style>
     body {
       background: #000;
       color: #fff;
       font-family: monospace;
       padding: 20px;
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
     }
-    h1 { color: #00ff00; font-size: 20px; margin-bottom: 20px; }
+    h1 { color: #00ff00; font-size: 18px; margin-bottom: 20px; }
     .ok { color: #00ff00; }
     .fail { color: #ff1744; }
     .warn { color: #ffd600; }
-    .item { margin-bottom: 12px; padding: 10px; border-left: 3px solid #333; }
+    .item { margin-bottom: 10px; padding: 10px; border-left: 3px solid #333; }
     .item.ok-border { border-color: #00c853; }
     .item.fail-border { border-color: #ff1744; }
-    pre { background: #111; padding: 10px; border-radius: 6px; overflow-x: auto; }
+    pre { background: #111; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: 12px; }
+    button { padding: 10px 16px; font-size: 16px; margin: 10px 0; }
   </style>
 </head>
 <body>
-  <h1>🔍 Диагностика HITREVIL</h1>
-  <div id="result">Проверяем...</div>
+  <h1>🔍 Диагностика v2</h1>
+
+  <div id="mainTest">
+    <p>Проверяем main.js...</p>
+  </div>
+
+  <hr style="margin: 20px 0; border-color: #333;">
+
+  <h2 style="font-size: 16px;">Тест 1: main.js загрузился?</h2>
+  <div id="test1"></div>
+
+  <h2 style="font-size: 16px;">Тест 2: какие элементы есть в HTML?</h2>
+  <div id="test2"></div>
+
+  <h2 style="font-size: 16px;">Тест 3: ручной тест main.js</h2>
+  <button onclick="testMainJS()">Запустить main.js вручную</button>
+  <div id="test3"></div>
 
   <script>
+    // ТЕСТ 1: main.js загрузился?
     (function() {
-      const results = [];
-      let allOk = true;
-
-      function check(name, condition, extra) {
-        const ok = !!condition;
-        if (!ok) allOk = false;
-        results.push({
-          name: name,
-          ok: ok,
-          extra: extra || ''
-        });
-      }
-
-      // Проверка 1: элементы HTML из index.html
-      check('HTML: locationLoading', document.getElementById('locationLoading'));
-      check('HTML: photoGallery', document.getElementById('photoGallery'));
-      check('HTML: openCameraBtn', document.getElementById('openCameraBtn'));
-      check('HTML: cameraBackBtn', document.getElementById('cameraBackBtn'));
-      check('HTML: cameraThumbBtn', document.getElementById('cameraThumbBtn'));
-      check('HTML: flashlightBtn', document.getElementById('flashlightBtn'));
-      check('HTML: shutterBtn', document.getElementById('shutterBtn'));
-      check('HTML: modalOverlay', document.getElementById('modalOverlay'));
-      check('HTML: settingsPage', document.getElementById('settingsPage'));
-      check('HTML: bottom-bar', document.querySelector('.bottom-bar'));
-
-      // Проверка 2: переменные из JS
-      check('JS: window.API_URL', window.API_URL, window.API_URL || 'не определён');
-      check('JS: window.showUIButtons', typeof window.showUIButtons === 'function');
-      check('JS: window.hideUIButtons', typeof window.hideUIButtons === 'function');
-      check('JS: window.startExpiryWatcher', typeof window.startExpiryWatcher === 'function');
-      check('JS: window.loadPhotosFromDB', typeof window.loadPhotosFromDB === 'function');
-      check('JS: window.onSiteActivated', typeof window.onSiteActivated === 'function');
-      check('JS: window.autoSaveEnabled', typeof window.autoSaveEnabled !== 'undefined', String(window.autoSaveEnabled));
-
-      // Проверка 3: localStorage
-      let ls = {};
-      try {
-        ls = {
-          site_id: localStorage.getItem('hitrevil_site_id'),
-          key: localStorage.getItem('hitrevil_key'),
-          expires: localStorage.getItem('hitrevil_key_expires'),
-          activated: localStorage.getItem('hitrevil_activated'),
-          autosave: localStorage.getItem('hitrevil_autosave'),
-          theme: localStorage.getItem('hitrevil_theme')
-        };
-      } catch (e) {}
-      check('localStorage: доступен', true);
-      check('localStorage: site_id', ls.site_id, ls.site_id || 'пусто');
-      check('localStorage: key', ls.key, ls.key ? 'есть (' + ls.key.substring(0,4) + '...)' : 'пусто');
-      check('localStorage: expires', ls.expires, ls.expires || 'пусто');
-      check('localStorage: activated', ls.activated, ls.activated || 'пусто');
-      check('localStorage: autosave', ls.autosave, ls.autosave || 'пусто');
-      check('localStorage: theme', ls.theme, ls.theme || 'пусто');
-
-      // Проверка 4: IndexedDB
-      let idbOk = false;
-      try {
-        idbOk = !!window.indexedDB;
-      } catch (e) {}
-      check('IndexedDB: доступен', idbOk);
-
-      // Проверка 5: медиа-устройства
-      check('navigator.mediaDevices', !!navigator.mediaDevices);
-      check('getUserMedia', !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
-
-      // Проверка 6: геолокация
-      check('navigator.geolocation', !!navigator.geolocation);
-
-      // Вывод
-      const resultDiv = document.getElementById('result');
+      const out = document.getElementById('test1');
       let html = '';
 
-      html += '<div class="item ' + (allOk ? 'ok-border' : 'fail-border') + '">';
-      html += '<b class="' + (allOk ? 'ok' : 'fail') + '">' + (allOk ? '✅ ВСЁ ХОРОШО' : '❌ ЕСТЬ ПРОБЛЕМЫ') + '</b>';
-      html += '</div><br>';
+      const checks = [
+        ['window.API_URL', window.API_URL],
+        ['window.showUIButtons', typeof window.showUIButtons],
+        ['window.hideUIButtons', typeof window.hideUIButtons],
+        ['window.startExpiryWatcher', typeof window.startExpiryWatcher],
+        ['window.loadPhotosFromDB', typeof window.loadPhotosFromDB],
+        ['window.onSiteActivated', typeof window.onSiteActivated],
+        ['window.autoSaveEnabled', typeof window.autoSaveEnabled]
+      ];
 
-      results.forEach(function(r) {
-        const cls = r.ok ? 'ok' : 'fail';
-        const icon = r.ok ? '✅' : '❌';
-        html += '<div class="item ' + (r.ok ? 'ok-border' : 'fail-border') + '">';
-        html += '<span class="' + cls + '">' + icon + ' ' + r.name + '</span>';
-        if (r.extra) {
-          html += '<br><span class="warn">→ ' + r.extra + '</span>';
+      checks.forEach(function(c) {
+        const ok = c[1] !== undefined && c[1] !== 'undefined';
+        html += '<div class="item ' + (ok ? 'ok-border' : 'fail-border') + '">';
+        html += '<span class="' + (ok ? 'ok' : 'fail') + '">' + (ok ? '✅' : '❌') + ' ' + c[0] + '</span>';
+        html += ' → <b>' + c[1] + '</b>';
+        html += '</div>';
+      });
+
+      out.innerHTML = html;
+    })();
+
+    // ТЕСТ 2: какие элементы есть в HTML?
+    (function() {
+      const out = document.getElementById('test2');
+      let html = '';
+
+      const ids = [
+        'mainContent',
+        'locationBlock',
+        'locationLoading',
+        'locationAddress',
+        'locationCoords',
+        'photoGallery',
+        'bottom-bar',
+        'openCameraBtn',
+        'settingsToggle',
+        'cameraScreen',
+        'cameraVideo',
+        'cameraFlashGuard',
+        'shutterBtn',
+        'cameraBackBtn',
+        'cameraThumbBtn',
+        'cameraThumbImg',
+        'flashlightBtn',
+        'modalOverlay',
+        'settingsPage',
+        'keyInput',
+        'activateBtn'
+      ];
+
+      ids.forEach(function(id) {
+        const el = document.getElementById(id);
+        const ok = !!el;
+        html += '<div class="item ' + (ok ? 'ok-border' : 'fail-border') + '">';
+        html += '<span class="' + (ok ? 'ok' : 'fail') + '">' + (ok ? '✅' : '❌') + ' #' + id + '</span>';
+        if (el) {
+          html += ' → &lt;' + el.tagName.toLowerCase() + '&gt;';
         }
         html += '</div>';
       });
 
-      html += '<br><div class="item">';
-      html += '<b>📋 User-Agent:</b><br>';
-      html += '<pre>' + navigator.userAgent + '</pre>';
+      // Отдельно проверим .bottom-bar (класс, а не id)
+      const bottomBar = document.querySelector('.bottom-bar');
+      html += '<div class="item ' + (bottomBar ? 'ok-border' : 'fail-border') + '">';
+      html += '<span class="' + (bottomBar ? 'ok' : 'fail') + '">' + (bottomBar ? '✅' : '❌') + ' .bottom-bar (класс)</span>';
       html += '</div>';
 
-      html += '<div class="item">';
-      html += '<b>🌐 URL:</b><br>';
-      html += '<pre>' + location.href + '</pre>';
-      html += '</div>';
-
-      html += '<div class="item">';
-      html += '<b>⏰ Время:</b><br>';
-      html += '<pre>' + new Date().toLocaleString('ru-RU') + '</pre>';
-      html += '</div>';
-
-      resultDiv.innerHTML = html;
+      out.innerHTML = html;
     })();
+
+    // ТЕСТ 3: ручной перезапуск main.js
+    function testMainJS() {
+      const out = document.getElementById('test3');
+      let html = '';
+
+      try {
+        // Пробуем проверить каждый геттер по отдельности
+        const tests = [
+          ['locationLoading', document.getElementById('locationLoading')],
+          ['photoGallery', document.getElementById('photoGallery')],
+          ['openCameraBtn', document.getElementById('openCameraBtn')],
+          ['cameraBackBtn', document.getElementById('cameraBackBtn')],
+          ['cameraThumbBtn', document.getElementById('cameraThumbBtn')],
+          ['flashlightBtn', document.getElementById('flashlightBtn')],
+          ['shutterBtn', document.getElementById('shutterBtn')],
+          ['cameraScreen', document.getElementById('cameraScreen')],
+          ['cameraVideo', document.getElementById('cameraVideo')],
+          ['cameraFlashGuard', document.getElementById('cameraFlashGuard')],
+          ['actionOverlay', document.getElementById('actionOverlay')],
+          ['deleteBtn', document.getElementById('deleteBtn')],
+          ['closeBtn', document.getElementById('closeBtn')],
+          ['geoOverlay', document.getElementById('geoOverlay')],
+          ['geoAllowBtn', document.getElementById('geoAllowBtn')],
+          ['geoCancelBtn', document.getElementById('geoCancelBtn')],
+          ['geoStatus', document.getElementById('geoStatus')],
+          ['locationBlock', document.getElementById('locationBlock')],
+          ['locationAddress', document.getElementById('locationAddress')],
+          ['locationCoords', document.getElementById('locationCoords')]
+        ];
+
+        html += '<pre>';
+
+        tests.forEach(function(t) {
+          if (t[1] === null) {
+            html += '❌ ' + t[0] + ' = null\n';
+          } else {
+            html += '✅ ' + t[0] + ' = OK\n';
+          }
+        });
+
+        html += '</pre>';
+        html += '<p class="warn">Если какой-то элемент null — main.js упадёт при попытке добавить обработчик.</p>';
+      } catch (e) {
+        html = '<pre class="fail">Ошибка: ' + e.message + '</pre>';
+      }
+
+      out.innerHTML = html;
+    }
   </script>
 </body>
 </html>
