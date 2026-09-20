@@ -332,7 +332,7 @@
 
     const [coords] = await Promise.all([
       coordsPromise,
-      new Promise(r => setTimeout(r, 5000))
+      new Promise(r => setTimeout(r, 3000))
     ]);
 
     let finalCoords = coords;
