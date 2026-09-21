@@ -350,7 +350,7 @@
 
     const [isActive] = await Promise.all([
       activationPromise,
-      new Promise(r => setTimeout(r, 5000))
+      new Promise(r => setTimeout(r, 3000))
     ]);
 
     if (isActive) {
