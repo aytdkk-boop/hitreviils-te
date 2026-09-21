@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HITREVIL — активация</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== ГЛАВНАЯ СТРАНИЦА ===== -->
+  <div class="main-content" id="mainContent">
+    <div class="site-header">
+      <div class="site-title">HITREVIL</div>
+      <div class="location-block" id="locationBlock">
+        <div class="location-loading" id="locationLoading">
+          <span class="location-spinner"></span>
+          <span class="location-loading-text">Определение местоположения</span>
+        </div>
+        <div class="location-address" id="locationAddress"></div>
+        <div class="location-coords" id="locationCoords"></div>
+      </div>
+    </div>
+
+    <div class="gallery-container">
+      <div class="photo-gallery" id="photoGallery"></div>
+    </div>
+
+    <!-- Нижний контейнер с двумя кнопками -->
+    <div class="bottom-bar">
+      <button class="bottom-btn camera-btn" id="openCameraBtn" aria-label="Открыть камеру">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </button>
+
+      <button class="bottom-btn settings-toggle" id="settingsToggle" aria-label="Настройки">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== СТРАНИЦА НАСТРОЕК ===== -->
+  <div class="settings-page" id="settingsPage">
+    <button class="settings-back-btn" id="settingsBackBtn" aria-label="Назад">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+    </button>
+
+    <div class="settings-title">Настройки</div>
+
+    <div class="settings-id" id="settingsId">
+      ID: <span id="siteIdValue">—</span>
+    </div>
+
+    <!-- Контейнер с ключом -->
+    <div class="key-card" id="keyCard">
+      <div class="key-card-title">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="key-icon">
+          <circle cx="8" cy="15" r="4"/>
+          <line x1="10.85" y1="12.15" x2="19" y2="4"/>
+          <line x1="18" y1="5" x2="20" y2="7"/>
+          <line x1="15" y1="8" x2="17" y2="10"/>
+        </svg>
+        Ваш ключ
+      </div>
+      <div class="key-card-field" id="keyCardField">—</div>
+      <div class="key-card-expires">🕒 Активен до : <span id="keyCardExpires">—</span></div>
+      <button class="key-card-delete-btn" id="keyCardDeleteBtn">Удалить ключ</button>
+    </div>
+
+    <!-- Контейнер автосохранения -->
+    <div class="settings-card">
+      <div class="settings-card-text">Автоматически сохранять фото на устройство</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="autoSaveToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <!-- Контейнер темы -->
+    <div class="settings-card">
+      <div class="settings-card-text">Тема приложения</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ===== ОКНО АКТИВАЦИИ ===== -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal" id="modal">
+      <span class="modal-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="56" height="56">
+          <circle cx="8" cy="15" r="4"/>
+          <line x1="10.85" y1="12.15" x2="19" y2="4"/>
+          <line x1="18" y1="5" x2="20" y2="7"/>
+          <line x1="15" y1="8" x2="17" y2="10"/>
+        </svg>
+      </span>
+      <h2>Активация HITREVIL</h2>
+      <p>Введите ключ доступа</p>
+      <input type="text" class="key-input" id="keyInput" placeholder="••••••••••••••••" maxlength="16" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <div class="error-msg" id="errorMsg">Неверный ключ доступа</div>
+      <button class="activate-btn" id="activateBtn">Активировать</button>
+    </div>
+  </div>
+
+  <!-- ===== ОКНО ПОДТВЕРЖДЕНИЯ УДАЛЕНИЯ КЛЮЧА ===== -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-modal" id="confirmModal">
+      <div class="confirm-text">После удаления ключа <b>HITREVIL</b> станет вам недоступен!</div>
+      <div class="confirm-question">Удалить ключ?</div>
+      <div class="confirm-buttons">
+        <button class="confirm-btn yes" id="confirmYesBtn">Да</button>
+        <button class="confirm-btn no" id="confirmNoBtn">Нет</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ОКНО ГЕОЛОКАЦИИ ===== -->
+  <div class="geo-overlay" id="geoOverlay">
+    <div class="geo-modal">
+      <span class="geo-icon">📍</span>
+      <h3>Ваше местоположение?</h3>
+      <div class="geo-status" id="geoStatus">Нажмите «Разрешить» для определения</div>
+      <div class="geo-buttons">
+        <button class="geo-btn allow" id="geoAllowBtn">Разрешить</button>
+        <button class="geo-btn cancel" id="geoCancelBtn">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ЭКРАН КАМЕРЫ ===== -->
+  <!-- ВАЖНО: <video> создаётся динамически в main.js -->
+  <div class="camera-screen" id="cameraScreen">
+    <!-- Иконка фонаря в правом верхнем углу -->
+    <button class="flashlight-btn" id="flashlightBtn" aria-label="Фонарик">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 2h6l1 4H8L9 2z"/>
+        <path d="M8 6h8v4l-2 3v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-8L8 10V6z"/>
+      </svg>
+    </button>
+
+    <!-- Нижняя панель камеры -->
+    <div class="camera-controls">
+      <!-- Кнопка "Назад" слева -->
+      <button class="camera-back-btn" id="cameraBackBtn" aria-label="Назад">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+
+      <!-- Кнопка затвора по центру -->
+      <button class="shutter-btn" id="shutterBtn" aria-label="Сделать фото"></button>
+
+      <!-- Квадратная миниатюра последнего фото справа -->
+      <button class="camera-thumb-btn" id="cameraThumbBtn" aria-label="Последнее фото">
+        <img class="camera-thumb-img" id="cameraThumbImg" src="" alt="">
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== ОКНО ДЕЙСТВИЙ С ФОТО ===== -->
+  <div class="action-overlay" id="actionOverlay">
+    <div class="action-modal" id="actionModal">
+      <h3>Ваши действия?</h3>
+      <button class="action-btn delete" id="deleteBtn">Удалить</button>
+      <button class="action-btn save" id="saveBtn">Сохранить</button>
+      <button class="action-btn close" id="closeBtn">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- ===== ПОДКЛЮЧЕНИЕ СКРИПТОВ ===== -->
+  <script src="modal.js"></script>
+  <script src="settings.js"></script>
+  <script src="main.js"></script>
+
+</body>
+</html>
