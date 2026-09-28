@@ -1046,7 +1046,7 @@
     const tipY = shape.y;
     const tailAngle = shape.angle;
 
-    const gap = unit * 0.06;
+    const gap = unit * 0.09;
 
     // Хвост
     const lineStartX = tipX + Math.cos(tailAngle) * gap;
