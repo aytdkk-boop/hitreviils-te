@@ -1039,8 +1039,8 @@
     const unit = getUnit();
     const stickLen = unit * 0.45;    // длина стрелки
     const shaftWidth = unit * 0.014; // толщина линии
-    const headW = unit * 0.055;      // раствор "галочки" (ширина)
-    const headH = unit * 0.075;      // глубина "галочки" (высота)
+    const headW = unit * 0.075;      // раствор "галочки" (ширина)
+    const headH = unit * 0.095;      // глубина "галочки" (высота)
 
     // Носик — в точке тапа
     const tipX = shape.x;
@@ -1074,7 +1074,7 @@
 ctx.save();
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
-ctx.lineWidth = shaftWidth * 1.4;   // чуть толще, чтобы выглядело массивно
+ctx.lineWidth = shaftWidth * 1.6;   // чуть толще, чтобы выглядело массивно
 ctx.strokeStyle = shape.color;
 ctx.shadowColor = 'rgba(0,0,0,0.7)';
 ctx.shadowBlur = unit * 0.012;
