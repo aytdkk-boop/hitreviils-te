@@ -1125,11 +1125,7 @@
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(ctrlCenterX, ctrlCenterY, dotR * 0.6, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fill();
-    ctx.restore();
-  }
+    ctx.arc(ctrlCenterX, ctrlCenterY, dotR * 0.6, 0, 
 
   function getUnit() {
     return Math.min(editorState.canvasW, editorState.canvasH);
