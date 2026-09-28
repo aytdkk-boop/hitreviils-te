@@ -1036,7 +1036,7 @@
   // Хвост — линия вниз (или по углу). Круг управления — снизу экрана.
   function drawPointer(ctx, shape) {
     const unit = getUnit();
-    const stickLen = unit * 0.18;    // длина хвоста
+    const stickLen = unit * 0.29;    // длина хвоста
     const shaftWidth = unit * 0.014; // толщина линий
     const headW = unit * 0.075;      // ширина наконечника ">" (раствор)
     const headH = unit * 0.095;      // глубина наконечника ">" (от носика назад)
