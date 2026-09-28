@@ -1040,7 +1040,7 @@
     const stickLen = unit * 0.45;    // длина стрелки
     const shaftWidth = unit * 0.014; // толщина линии
     const headW = unit * 0.075;      // раствор "галочки" (ширина)
-    const headH = unit * 0.095;      // глубина "галочки" (высота)
+    const headH = unit * 0.050;      // глубина "галочки" (высота)
 
     // Носик — в точке тапа
     const tipX = shape.x;
