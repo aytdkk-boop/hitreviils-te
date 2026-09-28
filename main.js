@@ -1107,28 +1107,31 @@
     const ctrlCenterX = shape.ctrlX != null ? shape.ctrlX : editorState.canvasW / 2;
     const ctrlCenterY = shape.ctrlY != null ? shape.ctrlY : editorState.canvasH - unit * 0.35;
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(ctrlCenterX, ctrlCenterY, ctrlRadius, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.06)';
-    ctx.fill();
-    ctx.lineWidth = Math.max(2, unit * 0.005);
-    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-    ctx.stroke();
+    // 2) Наконечник — форма ">" (две линии, сходятся в носике ctx.save();
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+ctx.lineWidth = shaftWidth * 1.4;
+ctx.strokeStyle = shape.color;
+ctx.shadowColor = 'rgba(0,0,0,0.7)';
+ctx.shadowBlur = unit * 0.012;
 
-    const dotR = unit * 0.016;
-    const dotX = ctrlCenterX + Math.cos(tailAngle) * (ctrlRadius * 0.75);
-    const dotY = ctrlCenterY + Math.sin(tailAngle) * (ctrlRadius * 0.75);
-    ctx.beginPath();
-    ctx.arc(dotX, dotY, dotR, 0, Math.PI * 2);
-    ctx.fillStyle = shape.color;
-    ctx.fill();
+const baseCenterX = tipX + Math.cos(tailAngle) * headH;
+const baseCenterY = tipY + Math.sin(tailAngle) * headH;
+const perpX = -Math.sin(tailAngle);
+const perpY = Math.cos(tailAngle);
 
-    ctx.beginPath();
-    ctx.arc(ctrlCenterX, ctrlCenterY, dotR * 0.6, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.fill();
-    ctx.restore();
+const leftX = baseCenterX + perpX * headW * 0.5;
+const leftY = baseCenterY + perpY * headW * 0.5;
+const rightX = baseCenterX - perpX * headW * 0.5;
+const rightY = baseCenterY - perpY * headW * 0.5;
+
+ctx.beginPath();
+ctx.moveTo(leftX, leftY);
+ctx.lineTo(tipX, tipY);
+ctx.lineTo(rightX, rightY);
+ctx.stroke();
+
+ctx.restore();
   }
 
   function getUnit() {
