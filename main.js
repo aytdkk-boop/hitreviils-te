@@ -1037,7 +1037,7 @@
   // форма выглядит монолитной, без эффекта "> одетый на -".
   function drawPointer(ctx, shape) {
     const unit = getUnit();
-    const stickLen = unit * 0.25;
+    const stickLen = unit * 0.40;
     const shaftWidth = unit * 0.014;
     const headW = unit * 0.075;
     const headH = unit * 0.095;
@@ -1046,7 +1046,7 @@
     const tipY = shape.y;
     const tailAngle = shape.angle;
 
-    const gap = unit * 0.010;
+    const gap = unit * 0.06;
 
     // Хвост
     const lineStartX = tipX + Math.cos(tailAngle) * gap;
