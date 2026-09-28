@@ -1038,7 +1038,7 @@
   function drawPointer(ctx, shape) {
     const unit = getUnit();
     const stickLen = unit * 0.45;    // длина стрелки
-    const shaftWidth = unit * 0.017; // толщина линии
+    const shaftWidth = unit * 0.014; // толщина линии
     const headW = unit * 0.055;      // раствор "галочки" (ширина)
     const headH = unit * 0.075;      // глубина "галочки" (высота)
 
