@@ -1074,7 +1074,7 @@
 ctx.save();
 ctx.lineCap = 'round';
 ctx.lineJoin = 'round';
-ctx.lineWidth = shaftWidth * 1.6;   // чуть толще, чтобы выглядело массивно
+ctx.lineWidth = shaftWidth * 1.4;   // чуть толще, чтобы выглядело массивно
 ctx.strokeStyle = shape.color;
 ctx.shadowColor = 'rgba(0,0,0,0.7)';
 ctx.shadowBlur = unit * 0.012;
