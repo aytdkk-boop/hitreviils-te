@@ -1037,8 +1037,8 @@
   // - круг управления рисуется НИЖЕ, над нижним контейнером
   function drawPointer(ctx, shape) {
     const unit = getUnit();
-    const stickLen = unit * 0.18;    // длина стрелки
-    const shaftWidth = unit * 0.014; // толщина линии
+    const stickLen = unit * 0.25;    // длина стрелки
+    const shaftWidth = unit * 0.017; // толщина линии
     const headW = unit * 0.055;      // раствор "галочки" (ширина)
     const headH = unit * 0.075;      // глубина "галочки" (высота)
 
@@ -1069,30 +1069,41 @@
     ctx.restore();
 
     // 2) Наконечник — «галочка» (форма стрелки →)
-    ctx.save();
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = shaftWidth * 1.05;
-    ctx.strokeStyle = shape.color;
-    ctx.shadowColor = 'rgba(0,0,0,0.7)';
-    ctx.shadowBlur = unit * 0.012;
+    // 2) Наконечник — плотный «>» (толстая галочка с обводкой)
+    // 2) Наконечник — плотный «>» (толстая галочка с обводкой)
+ctx.save();
+ctx.lineCap = 'round';
+ctx.lineJoin = 'round';
+ctx.lineWidth = shaftWidth * 1.4;   // чуть толще, чтобы выглядело массивно
+ctx.strokeStyle = shape.color;
+ctx.shadowColor = 'rgba(0,0,0,0.7)';
+ctx.shadowBlur = unit * 0.012;
 
-    const baseCenterX = tipX + Math.cos(tailAngle) * headH;
-    const baseCenterY = tipY + Math.sin(tailAngle) * headH;
-    const perpX = -Math.sin(tailAngle);
-    const perpY = Math.cos(tailAngle);
+const baseCenterX = tipX + Math.cos(tailAngle) * headH;
+const baseCenterY = tipY + Math.sin(tailAngle) * headH;
+const perpX = -Math.sin(tailAngle);
+const perpY = Math.cos(tailAngle);
 
-    const leftX = baseCenterX + perpX * headW * 0.5;
-    const leftY = baseCenterY + perpY * headW * 0.5;
-    const rightX = baseCenterX - perpX * headW * 0.5;
-    const rightY = baseCenterY - perpY * headW * 0.5;
+const leftX = baseCenterX + perpX * headW * 0.5;
+const leftY = baseCenterY + perpY * headW * 0.5;
+const rightX = baseCenterX - perpX * headW * 0.5;
+const rightY = baseCenterY - perpY * headW * 0.5;
 
-    ctx.beginPath();
-    ctx.moveTo(leftX, leftY);
-    ctx.lineTo(tipX, tipY);
-    ctx.lineTo(rightX, rightY);
-    ctx.stroke();
-    ctx.restore();
+// Замкнутая форма ">" — линия сверху, линия снизу, и замыкание у основания
+ctx.beginPath();
+ctx.moveTo(leftX, leftY);
+ctx.lineTo(tipX, tipY);
+ctx.lineTo(rightX, rightY);
+ctx.stroke();
+
+// Дорисовываем "спинку" наконечника — короткая линия от left к right
+ctx.beginPath();
+ctx.moveTo(leftX, leftY);
+ctx.lineTo(rightX, rightY);
+ctx.stroke();
+
+ctx.restore();
+
 
     // 3) Круг управления — снизу экрана, над нижним контейнером
     const ctrlRadius = unit * 0.13;
