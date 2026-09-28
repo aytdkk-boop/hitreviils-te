@@ -1037,7 +1037,7 @@
   // форма выглядит монолитной, без эффекта "> одетый на -".
   function drawPointer(ctx, shape) {
     const unit = getUnit();
-    const stickLen = unit * 0.018;
+    const stickLen = unit * 0.18;
     const shaftWidth = unit * 0.014;
     const headW = unit * 0.075;
     const headH = unit * 0.095;
