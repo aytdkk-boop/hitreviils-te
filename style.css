@@ -1569,7 +1569,7 @@ body.light-theme .bottom-btn svg {
 .photo-view-top-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 13px;
 }
 
 .photo-view-btn {
