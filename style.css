@@ -1824,8 +1824,8 @@ body.light-theme .bottom-btn svg {
 
 /* ===== ИНСТРУМЕНТЫ РЕДАКТОРА ===== */
 .editor-tool-btn {
-  width: 41px;
-  height: 41px;
+  width: 36px;
+  height: 36px;
   border-radius: 12px;
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.35);
@@ -1840,8 +1840,8 @@ body.light-theme .bottom-btn svg {
 }
 
 .editor-tool-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 19px;
+  height: 19px;
   stroke: #fff;
   stroke-width: 2;
   fill: none;
