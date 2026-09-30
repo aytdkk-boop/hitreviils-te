@@ -1573,8 +1573,8 @@ body.light-theme .bottom-btn svg {
 }
 
 .photo-view-btn {
-  width: 44px;
-  height: 44px;
+  width: 41px;
+  height: 41px;
   border-radius: 10px;
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.5);
@@ -1597,8 +1597,8 @@ body.light-theme .bottom-btn svg {
 }
 
 .photo-view-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   stroke: #fff;
   stroke-width: 2.2;
   fill: none;
@@ -1824,8 +1824,8 @@ body.light-theme .bottom-btn svg {
 
 /* ===== ИНСТРУМЕНТЫ РЕДАКТОРА ===== */
 .editor-tool-btn {
-  width: 48px;
-  height: 48px;
+  width: 41px;
+  height: 41px;
   border-radius: 12px;
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.35);
@@ -1863,8 +1863,8 @@ body.light-theme .bottom-btn svg {
 }
 
 .editor-color-btn {
-  width: 48px;
-  height: 48px;
+  width: 41px;
+  height: 41px;
   border-radius: 12px;
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.35);
@@ -2203,7 +2203,7 @@ body.fade-in {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 14px 20px 22px;
+  padding: 12px 20px 22px;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
