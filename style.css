@@ -1573,8 +1573,8 @@ body.light-theme .bottom-btn svg {
 }
 
 .photo-view-btn {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 10px;
   background: transparent;
   border: 1.5px solid rgba(255, 255, 255, 0.5);
@@ -1597,8 +1597,8 @@ body.light-theme .bottom-btn svg {
 }
 
 .photo-view-btn svg {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   stroke: #fff;
   stroke-width: 2.2;
   fill: none;
