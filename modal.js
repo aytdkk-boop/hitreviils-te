@@ -3,7 +3,7 @@
   'use strict';
 
   // ⚠️ ЗАМЕНИТЕ НА СВОЙ ДОМЕН
-  const API_URL = 'bot-1791149142-5220-lilos457.bothost.tech';
+  const API_URL = 'https://bot-1791149142-5220-lilos457.bothost.tech';
 
   const modalOverlay = document.getElementById('modalOverlay');
   const modal = document.getElementById('modal');
