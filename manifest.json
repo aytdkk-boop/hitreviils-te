@@ -3,7 +3,7 @@
   "short_name": HITREVILSS",
   "description": "Камера с геометками и редактором",
   "start_url": "./index.html",
-  "scope": "./",
+  "scope": "./.",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#000000",
