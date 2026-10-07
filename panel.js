@@ -1,4 +1,5 @@
 // panel.js — экран "Панель управления" + статистика ключей HITREVIL
+// Бургер показывается только администраторам (проверка через /api/me)
 (function() {
   'use strict';
 
@@ -10,29 +11,77 @@
   const activeCount   = document.getElementById('activeCount');
   const inactiveCount = document.getElementById('inactiveCount');
 
-  // Если страница без панели — молча выходим
   if (!panelScreen) return;
 
   let panelOpen = false;
   let refreshTimer = null;
+  let isAdmin = false;
+
+  // ===== ПРОВЕРКА ПРАВ ЧЕРЕЗ СЕРВЕР =====
+  async function checkAdmin() {
+    if (!window.API_URL) return false;
+
+    const key = localStorage.getItem('hitrevil_key') || '';
+    if (!key) return false;
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/me', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: key })
+      });
+      if (!resp.ok) return false;
+
+      const data = await resp.json();
+      return !!data.is_admin;
+    } catch (err) {
+      console.warn('Не удалось проверить права:', err);
+      return false;
+    }
+  }
+
+  // ===== ПОКАЗ / СКРЫТИЕ БУРГЕРА ПО ПРАВАМ =====
+  async function setupBurgerVisibility() {
+    if (!burgerBtn) return;
+
+    // По умолчанию прячем — чтобы не «моргал» до проверки
+    burgerBtn.style.display = 'none';
+
+    isAdmin = await checkAdmin();
+
+    if (isAdmin) {
+      burgerBtn.style.display = '';
+    }
+  }
+
+  // Проверка при загрузке, если пользователь уже активирован
+  window.addEventListener('load', function() {
+    const activated = localStorage.getItem('hitrevil_activated') === 'true';
+    if (activated) setupBurgerVisibility();
+  });
+
+  // Перехватываем onSiteActivated, чтобы проверять права после активации ключа
+  const origOnSiteActivated = window.onSiteActivated;
+  window.onSiteActivated = function() {
+    if (typeof origOnSiteActivated === 'function') origOnSiteActivated();
+    setupBurgerVisibility();
+  };
 
   // ===== ОТКРЫТИЕ ПАНЕЛИ =====
   function openPanel() {
+    if (!isAdmin) return;          // защита: открыть может только админ
     if (panelOpen) return;
     panelOpen = true;
 
-    // Плавно скрываем главную
     mainContent.classList.remove('active');
 
     setTimeout(function() {
       panelScreen.classList.add('active');
 
-      // Контейнер плавно выезжает после появления экрана
       setTimeout(function() {
         usersCard.classList.add('visible');
       }, 120);
 
-      // Подгружаем статистику сразу и обновляем каждые 15 сек
       loadStats();
       refreshTimer = setInterval(loadStats, 15000);
     }, 250);
@@ -65,7 +114,6 @@
     panelBackBtn.addEventListener('click', closePanel);
   }
 
-  // Закрытие по Escape
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && panelOpen) closePanel();
   });
