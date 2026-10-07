@@ -10,9 +10,16 @@
 
   <!-- ===== ГЛАВНАЯ СТРАНИЦА ===== -->
   <div class="main-content" id="mainContent">
-    <div class="site-header">
-      <div class="site-title">HITREVIL</div>
-      <div class="location-block" id="locationBlock">
+  <div class="site-header">
+    <button class="burger-btn" id="burgerBtn" aria-label="Меню">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <line x1="4" y1="7"  x2="20" y2="7"/>
+        <line x1="4" y1="12" x2="20" y2="12"/>
+        <line x1="4" y1="17" x2="20" y2="17"/>
+      </svg>
+    </button>
+    <div class="site-title">HITREVIL</div>
+    <div class="location-block" id="locationBlock">
         <div class="location-loading" id="locationLoading">
           <span class="location-spinner"></span>
           <span class="location-loading-text">Определение местоположения</span>
@@ -339,9 +346,40 @@
     </div>
   </div>
 
+<!-- ===== ЭКРАН ПАНЕЛИ УПРАВЛЕНИЯ ===== -->
+<div class="panel-screen" id="panelScreen">
+  <button class="panel-back-btn" id="panelBackBtn" aria-label="Назад">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="12 19 5 12 12 5"/>
+    </svg>
+  </button>
+
+  <div class="panel-title">Панель управления</div>
+
+  <div class="panel-body">
+    <div class="users-card" id="usersCard">
+      <div class="users-card-title">Пользователи</div>
+
+      <div class="users-card-line status-active">
+        <span class="status-dot blink">🟢</span>
+        <span class="users-card-label">Активно</span>
+        <span class="users-card-count" id="activeCount">—</span>
+      </div>
+
+      <div class="users-card-line status-inactive">
+        <span class="status-dot blink">🔴</span>
+        <span class="users-card-label">Не активно</span>
+        <span class="users-card-count" id="inactiveCount">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+    
   <script src="modal.js"></script>
   <script src="settings.js"></script>
   <script src="main.js"></script>
+  <script src="panel.js"></script>
 
 </body>
 </html>
