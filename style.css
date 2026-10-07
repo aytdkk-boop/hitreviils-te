@@ -2148,3 +2148,183 @@ body.fade-in {
   overflow: hidden;
   touch-action: none;
 }
+
+/* ===== БУРГЕР-КНОПКА ===== */
+.burger-btn {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--btn-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  z-index: 10;
+  transition: background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+}
+
+.burger-btn:hover  { background: rgba(128,128,128,0.15); transform: scale(1.08); }
+.burger-btn:active { transform: scale(0.92); }
+
+.burger-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text);
+  stroke-width: 2.2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.light-theme .burger-btn svg { stroke: #000; }
+
+/* ===== ЭКРАН ПАНЕЛИ УПРАВЛЕНИЯ ===== */
+.panel-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 185;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease, background 0.6s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.panel-screen.active { opacity: 1; visibility: visible; }
+
+.panel-title {
+  color: var(--text);
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 24px;
+  transition: color 0.6s ease;
+}
+
+.panel-back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--btn-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  padding: 0;
+  outline: none;
+  transition: background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+}
+
+.panel-back-btn:hover  { background: rgba(128,128,128,0.15); transform: scale(1.08); }
+.panel-back-btn:active { transform: scale(0.92); }
+
+.panel-back-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ===== КОНТЕЙНЕР "ПОЛЬЗОВАТЕЛИ" ===== */
+.panel-body {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.users-card {
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease,
+              border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+}
+
+.users-card.visible { opacity: 1; transform: translateY(0); }
+
+.users-card:hover {
+  border-color: rgba(128,128,128,0.5);
+  box-shadow: 0 0 25px rgba(128,128,128,0.15);
+}
+
+.users-card-title {
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.users-card-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: color 0.6s ease;
+}
+
+.users-card-line + .users-card-line {
+  margin-top: 6px;
+  border-top: 1px solid var(--photo-border);
+  padding-top: 14px;
+}
+
+.users-card-line .status-dot {
+  font-size: 0.9rem;
+  display: inline-block;
+  line-height: 1;
+}
+
+.users-card-label { color: inherit; }
+
+.users-card-count {
+  margin-left: auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+.status-active   { color: #00e676; }
+.status-inactive { color: #ff5252; }
+
+body.light-theme .status-active   { color: #00a844; }
+body.light-theme .status-inactive { color: #d50000; }
+
+@keyframes statusBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+
+.blink { animation: statusBlink 1.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .blink { animation: none; }
+}
