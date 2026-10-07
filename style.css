@@ -2328,3 +2328,237 @@ body.light-theme .status-inactive { color: #d50000; }
 @media (prefers-reduced-motion: reduce) {
   .blink { animation: none; }
 }
+
+/* ===== КОНТЕЙНЕР "ПОЛЬЗОВАТЕЛИ" НА ПАНЕЛИ ===== */
+.users-list-card {
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease,
+              border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+}
+
+.users-list-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.users-list-card:hover {
+  border-color: rgba(128, 128, 128, 0.5);
+  box-shadow: 0 0 25px rgba(128, 128, 128, 0.15);
+}
+
+.users-list-card:active {
+  transform: scale(0.985);
+}
+
+.users-list-card-title {
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  transition: color 0.6s ease;
+}
+
+.users-list-card-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--text);
+  transition: color 0.6s ease;
+}
+
+.users-list-card-count .status-dot {
+  font-size: 0.9rem;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* ===== ЭКРАН СПИСКА ПОЛЬЗОВАТЕЛЕЙ ===== */
+.users-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 190;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease, background 0.6s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.users-screen.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.users-screen-title {
+  color: var(--text);
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 24px;
+  transition: color 0.6s ease;
+}
+
+.users-back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--btn-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  padding: 0;
+  outline: none;
+  transition: background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+}
+
+.users-back-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+  transform: scale(1.08);
+}
+
+.users-back-btn:active {
+  transform: scale(0.92);
+}
+
+.users-back-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.users-screen-body {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 40px;
+}
+
+.users-screen-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== КАРТОЧКА ПОЛЬЗОВАТЕЛЯ ===== */
+.user-item {
+  position: relative;
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease,
+              border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+}
+
+.user-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.user-item:hover {
+  border-color: rgba(128, 128, 128, 0.5);
+  box-shadow: 0 0 25px rgba(128, 128, 128, 0.15);
+}
+
+.user-item-date {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+  padding-right: 40px; /* чтобы не наезжало на статус */
+  transition: color 0.6s ease;
+  word-break: break-word;
+}
+
+.user-item-id {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: color 0.6s ease;
+  word-break: break-all;
+}
+
+.user-item-status {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-block;
+  pointer-events: none;
+}
+
+/* ===== КНОПКА "ПОКАЗАТЬ ЕЩЁ" ===== */
+.users-load-more {
+  display: none;
+  width: 100%;
+  max-width: 360px;
+  margin: 8px auto 0;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1.5px solid var(--btn-border);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+}
+
+.users-load-more.visible {
+  display: block;
+}
+
+.users-load-more:hover {
+  background: rgba(128, 128, 128, 0.15);
+  border-color: rgba(128, 128, 128, 0.6);
+}
+
+.users-load-more:active {
+  transform: scale(0.97);
+}
+
+.users-load-more:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
