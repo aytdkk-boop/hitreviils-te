@@ -375,6 +375,32 @@
     </div>
   </div>
 </div>
+
+<div class="users-list-card" id="usersListCard">
+  <div class="users-list-card-title">Пользователи</div>
+  <div class="users-list-card-count">
+    <span class="status-dot blink">⚡</span>
+    <span>Всего <span id="totalUsersCount">—</span></span>
+  </div>
+</div>
+
+  <!-- ===== ЭКРАН СПИСКА ПОЛЬЗОВАТЕЛЕЙ ===== -->
+<div class="users-screen" id="usersScreen">
+  <button class="users-back-btn" id="usersBackBtn" aria-label="Назад">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="12 19 5 12 12 5"/>
+    </svg>
+  </button>
+
+  <div class="users-screen-title">Пользователи</div>
+
+  <div class="users-screen-body" id="usersScreenBody">
+    <div class="users-screen-list" id="usersScreenList"></div>
+
+    <button class="users-load-more" id="usersLoadMoreBtn">Показать ещё</button>
+  </div>
+</div>
     
   <script src="modal.js"></script>
   <script src="settings.js"></script>
