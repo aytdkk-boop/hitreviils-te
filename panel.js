@@ -24,11 +24,11 @@
 
   // ===== СОСТОЯНИЕ =====
   let panelOpen = false;
-  let usersScreenOpen = false;
-  let refreshTimer = null;
+let usersScreenOpen = false;
+let refreshTimer = null;
+let statusesTimer = null;
 
-  let isAdmin = false;
-
+let isAdmin = false;
   // Список пользователей (для пагинации)
   let usersOffset = 0;
   const USERS_LIMIT = 20;
@@ -173,22 +173,31 @@
     usersListCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
-    setTimeout(function() {
-      usersScreen.classList.add('active');
+   setTimeout(function() {
+     usersScreen.classList.add('active');
 
-      // Первая загрузка — с нуля
-      usersOffset = 0;
-      usersTotalWithKey = 0;
-      usersScreenList.innerHTML = '';
-      usersLoadMoreBtn.classList.remove('visible');
+     // Первая загрузка — с нуля
+     usersOffset = 0;
+     usersTotalWithKey = 0;
+     usersScreenList.innerHTML = '';
+     usersLoadMoreBtn.classList.remove('visible');
 
-      loadUsersChunk();
-    }, 350);
+     loadUsersChunk();
+
+    // Авто-обновление статусов каждые 15 секунд
+    if (statusesTimer) clearInterval(statusesTimer);
+    statusesTimer = setInterval(refreshStatuses, 15000);
+  }, 350);
   }
 
   function closeUsersScreen() {
     if (!usersScreenOpen) return;
     usersScreenOpen = false;
+
+    if (statusesTimer) {
+      clearInterval(statusesTimer);
+      statusesTimer = null;
+    }
 
     usersScreen.classList.remove('active');
 
@@ -274,7 +283,8 @@
   function createUserItem(u) {
     const item = document.createElement('div');
     item.className = 'user-item';
-
+    item.dataset.telegramId = String(u.telegram_id);
+    
     const dateEl = document.createElement('div');
     dateEl.className = 'user-item-date';
     dateEl.textContent = formatUserDate(u.activated_at);
@@ -326,6 +336,60 @@
     if (usersScreenOpen) { closeUsersScreen(); return; }
     if (panelOpen) { closePanel(); return; }
   });
+
+    // ===== ОБНОВЛЕНИЕ ТОЛЬКО СТАТУСОВ =====
+  async function refreshStatuses() {
+    if (!window.API_URL || !usersScreenOpen) return;
+
+    // Собираем все telegram_id, которые сейчас видны в списке
+    const items = usersScreenList.querySelectorAll('.user-item');
+    if (!items.length) return;
+
+    const ids = [];
+    items.forEach(function(el) {
+      const id = parseInt(el.dataset.telegramId, 10);
+      if (!isNaN(id)) ids.push(id);
+    });
+
+    if (!ids.length) return;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/users/statuses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_ids: ids
+        })
+      });
+
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+      const statuses = data.statuses || {};
+
+      // Обновляем эмодзи у каждой карточки на месте
+      items.forEach(function(el) {
+        const id = parseInt(el.dataset.telegramId, 10);
+        if (isNaN(id)) return;
+
+        const active = !!statuses[id] || statuses[String(id)] === true;
+        const statusEl = el.querySelector('.user-item-status');
+        if (!statusEl) return;
+
+        const newEmoji = active ? '🟢' : '🔴';
+        if (statusEl.textContent !== newEmoji) {
+          statusEl.textContent = newEmoji;
+        }
+      });
+    } catch (err) {
+      console.warn('Не удалось обновить статусы:', err);
+    }
+  }
 
   // ===== ЭКСПОРТ =====
   window.refreshAdminPanelStats = loadStats;
