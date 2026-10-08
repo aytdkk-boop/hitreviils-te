@@ -295,6 +295,76 @@
   function startKeyCheck() {
     if (keyCheckInterval) return;
 
+// ===== АВТО-ПОДХВАТ ВЫДАННОГО КЛЮЧА =====
+// Если админ выдал ключ из панели управления, он автоматически активируется
+let autoKeyCheckInterval = null;
+
+function startAutoKeyCheck() {
+  if (autoKeyCheckInterval) return;
+
+  autoKeyCheckInterval = setInterval(async function() {
+    if (document.hidden) return;
+
+    // Не проверяем, если уже активированы
+    let activated = false;
+    try {
+      activated = localStorage.getItem('hitrevil_activated') === 'true';
+    } catch (e) {}
+    if (activated) return;
+
+    let siteId = '';
+    try {
+      siteId = localStorage.getItem('hitrevil_site_id') || '';
+    } catch (e) {}
+
+    if (!siteId) return;
+
+    try {
+      const resp = await fetch(API_URL + '/api/check-auto-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ site_id: siteId })
+      });
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+      if (!data.has_key || !data.key) return;
+
+      // Сервер вернул ключ — активируем его автоматически
+      const newKey = String(data.key).trim();
+
+      try {
+        localStorage.setItem('hitrevil_activated', 'true');
+        localStorage.setItem('hitrevil_activated_at', new Date().toISOString());
+        localStorage.setItem('hitrevil_key', newKey);
+        if (data.expires_at) {
+          localStorage.setItem('hitrevil_key_expires', data.expires_at);
+        }
+      } catch (e) {}
+
+      // Плавно закрываем экран активации
+      modal.classList.add('fade-out');
+      modalOverlay.classList.add('hidden');
+
+      setTimeout(function() {
+        showUIButtons();
+        mainContent.classList.add('active');
+        if (window.onSiteActivated) window.onSiteActivated();
+        startExpiryWatcher();
+        startKeyCheck();
+
+        // Останавливаем авто-подхват — мы уже активированы
+        if (autoKeyCheckInterval) {
+          clearInterval(autoKeyCheckInterval);
+          autoKeyCheckInterval = null;
+        }
+      }, 300);
+    } catch (err) {
+      // Сеть недоступна — не трогаем
+    }
+  }, 10000); // каждые 10 секунд
+}
+    
     keyCheckInterval = setInterval(async function() {
       if (document.hidden) return;
 
@@ -384,6 +454,9 @@
       errorMsg.classList.remove('show');
       lastCheckedKey = '';
       isKeyCorrect = false;
+
+      // Запускаем авто-подхват выданного ключа
+      startAutoKeyCheck();
     }
   }
 
