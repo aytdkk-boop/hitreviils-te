@@ -518,6 +518,7 @@
 
     if (keyTitle) keyTitle.style.display = 'none';
     if (keyExpiresWrap) keyExpiresWrap.style.display = 'none';
+
     userKeyField.style.display = 'none';
     userKeyField.textContent = '';
 
@@ -534,38 +535,40 @@
   }
 
   async function confirmGrant(duration) {
-    userGrantOverlay.classList.remove('active');
-    if (!currentUserTid) return;
+  userGrantOverlay.classList.remove('active');
+  if (!currentUserTid) return;
 
-    const key    = localStorage.getItem('hitrevil_key') || '';
-    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+  const key    = localStorage.getItem('hitrevil_key') || '';
+  const siteId = localStorage.getItem('hitrevil_site_id') || '';
 
-    try {
-      const resp = await fetch(window.API_URL + '/api/admin/user/grant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: key,
-          site_id: siteId,
-          telegram_id: currentUserTid,
-          duration: duration
-        })
-      });
-      if (!resp.ok) return;
+  try {
+    const resp = await fetch(window.API_URL + '/api/admin/user/grant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        key: key,
+        site_id: siteId,
+        telegram_id: currentUserTid,
+        duration: duration
+      })
+    });
+    if (!resp.ok) return;
 
-      const data = await resp.json();
+    const data = await resp.json();
 
-      // Перезагружаем профиль — там уже будет новый ключ
-      await loadUserProfile(currentUserTid);
+    // Перезагружаем профиль — там уже будет новый ключ
+    await loadUserProfile(currentUserTid);
 
-      fadeSwapKeyButtons('revoke');
-    } catch (err) {
-      console.warn('Ошибка выдачи ключа:', err);
-    }
+    // Плавно меняем кнопку на "Удалить ключ"
+    fadeSwapKeyButtons('revoke');
+  } catch (err) {
+    console.warn('Ошибка выдачи ключа:', err);
   }
+}
 
   // Плавная смена кнопок "Удалить ключ" / "Выдать ключ"
-  function fadeSwapKeyButtons(target) {
+function fadeSwapKeyButtons(target) {
+  // target = 'grant' или 'revoke' — какую кнопку хотим показать
   const from = target === 'grant' ? userRevokeBtn : userGrantBtn;
   const to   = target === 'grant' ? userGrantBtn : userRevokeBtn;
 
