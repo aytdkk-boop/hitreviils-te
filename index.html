@@ -355,6 +355,54 @@
     </svg>
   </button>
 
+  <!-- ===== МОДАЛКА ОТЗЫВА КЛЮЧА ===== -->
+<div class="confirm-overlay" id="userRevokeOverlay">
+  <div class="confirm-modal">
+    <div class="confirm-text">Пользователь потеряет доступ к <b>HITREVIL</b>!</div>
+    <div class="confirm-question">Удалить ключ?</div>
+    <div class="confirm-buttons">
+      <button class="confirm-btn yes" id="userRevokeYesBtn">Да</button>
+      <button class="confirm-btn no" id="userRevokeNoBtn">Нет</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ===== МОДАЛКА ВЫДАЧИ КЛЮЧА (ВЫБОР СРОКА) ===== -->
+<div class="duration-overlay" id="userGrantOverlay">
+  <div class="duration-modal">
+    <div class="duration-title">На сколько выдать ключ?</div>
+
+    <div class="duration-list">
+      <button class="duration-btn" data-duration="test">⚡ Тестовый режим - 5 минут</button>
+
+      <div class="duration-row">
+        <button class="duration-btn" data-duration="2h">🕒 2 часа</button>
+        <button class="duration-btn" data-duration="4h">🕒 4 часа</button>
+        <button class="duration-btn" data-duration="6h">🕒 6 часов</button>
+      </div>
+
+      <div class="duration-row">
+        <button class="duration-btn" data-duration="12h">🕒 12 часов</button>
+        <button class="duration-btn" data-duration="24h">🕒 24 часа</button>
+        <button class="duration-btn" data-duration="48h">🕒 48 часов</button>
+      </div>
+
+      <button class="duration-btn" data-duration="1m">🕒 1 месяц</button>
+    </div>
+
+    <button class="duration-cancel" id="userGrantCancelBtn">Отмена</button>
+  </div>
+</div>
+
+  <!-- ===== МОДАЛКА "КАМЕРА ВЫКЛЮЧЕНА" ===== -->
+<div class="camera-off-overlay" id="cameraOffOverlay">
+  <div class="camera-off-modal">
+    <div class="camera-off-icon">📷</div>
+    <div class="camera-off-text">Камера отключена администратором</div>
+    <button class="camera-off-btn" id="cameraOffCloseBtn">Понятно</button>
+  </div>
+</div>
+
   <div class="panel-title">Панель управления</div>
 
   <div class="panel-body">
@@ -401,7 +449,66 @@
     <button class="users-load-more" id="usersLoadMoreBtn">Показать ещё</button>
   </div>
 </div>
-    
+
+<!-- ===== ЭКРАН ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ ===== -->
+<div class="user-screen" id="userScreen">
+  <button class="user-back-btn" id="userBackBtn" aria-label="Назад">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="12 19 5 12 12 5"/>
+    </svg>
+  </button>
+
+  <div class="user-screen-title">Пользователь</div>
+  <div class="user-screen-id">ID : <span id="userScreenId">—</span></div>
+
+  <div class="user-screen-body">
+
+    <!-- Контейнер с ключом -->
+    <div class="user-key-card" id="userKeyCard">
+      <div class="user-key-card-title">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-key-icon">
+          <circle cx="8" cy="15" r="4"/>
+          <line x1="10.85" y1="12.15" x2="19" y2="4"/>
+          <line x1="18" y1="5" x2="20" y2="7"/>
+          <line x1="15" y1="8" x2="17" y2="10"/>
+        </svg>
+        <span>Ключ пользователя</span>
+      </div>
+
+      <div class="user-key-field" id="userKeyField">—</div>
+
+      <div class="user-key-expires">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-clock-icon">
+          <circle cx="12" cy="12" r="9"/>
+          <polyline points="12 7 12 12 15 14"/>
+        </svg>
+        <span>Активен до : <span id="userKeyExpires">—</span></span>
+      </div>
+
+      <button class="user-key-action-btn revoke" id="userRevokeBtn">Удалить ключ</button>
+      <button class="user-key-action-btn grant" id="userGrantBtn" style="display:none;">Выдать ключ</button>
+    </div>
+
+    <!-- Контейнер с камерой -->
+    <div class="user-camera-card">
+      <div class="user-camera-left">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-camera-icon">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span class="user-camera-label">Камера</span>
+      </div>
+
+      <label class="toggle-switch">
+        <input type="checkbox" id="userCameraToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+  </div>
+</div>
+  
   <script src="modal.js"></script>
   <script src="settings.js"></script>
   <script src="main.js"></script>
