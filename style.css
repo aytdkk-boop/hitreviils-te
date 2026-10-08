@@ -2562,3 +2562,495 @@ body.light-theme .status-inactive { color: #d50000; }
   opacity: 0.5;
   cursor: wait;
 }
+
+/* ===== ЭКРАН ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ ===== */
+.user-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 195;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease, background 0.6s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.user-screen.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.user-screen-title {
+  color: var(--text);
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 6px;
+  transition: color 0.6s ease;
+}
+
+.user-screen-id {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-bottom: 24px;
+  transition: color 0.6s ease;
+}
+
+.user-screen-id span {
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.user-back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--btn-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  padding: 0;
+  outline: none;
+  transition: background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+}
+
+.user-back-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+  transform: scale(1.08);
+}
+
+.user-back-btn:active {
+  transform: scale(0.92);
+}
+
+.user-back-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.user-screen-body {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+
+/* ===== КОНТЕЙНЕР С КЛЮЧОМ ===== */
+.user-key-card {
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 22px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease,
+              border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+}
+
+.user-key-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.user-key-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  transition: color 0.6s ease;
+}
+
+.user-key-icon {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text);
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.user-key-field {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--key-field-bg);
+  color: var(--key-field-text);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 14px;
+  cursor: default;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.user-key-expires {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 18px;
+  transition: color 0.6s ease;
+}
+
+.user-key-expires span {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.user-clock-icon {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-muted);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* Кнопки "Удалить ключ" / "Выдать ключ" */
+.user-key-action-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease,
+              opacity 0.4s ease, transform 0.15s ease;
+}
+
+.user-key-action-btn.revoke {
+  background: transparent;
+  border: 1.5px solid rgba(255, 23, 68, 0.7);
+  color: #ff5252;
+}
+
+.user-key-action-btn.revoke:hover {
+  background: rgba(255, 23, 68, 0.15);
+  border-color: #ff1744;
+  color: #ff1744;
+}
+
+.user-key-action-btn.grant {
+  background: #00c853;
+  border: none;
+  color: #000;
+}
+
+.user-key-action-btn.grant:hover {
+  background: #00e676;
+}
+
+.user-key-action-btn:active {
+  transform: scale(0.97);
+}
+
+.user-key-action-btn.fading {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* ===== КОНТЕЙНЕР С КАМЕРОЙ ===== */
+.user-camera-card {
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease,
+              border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+}
+
+.user-camera-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.user-camera-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-camera-icon {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text);
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.user-camera-label {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: color 0.6s ease;
+}
+
+/* ===== МОДАЛКА ВЫБОРА СРОКА ===== */
+.duration-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+
+.duration-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.duration-modal {
+  background: var(--modal-bg);
+  border-radius: 20px;
+  padding: 26px 22px 20px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  border: 1px solid var(--modal-border);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.duration-overlay.active .duration-modal {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.duration-title {
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 18px;
+}
+
+.duration-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.duration-row {
+  display: flex;
+  gap: 8px;
+}
+
+.duration-btn {
+  flex: 1;
+  padding: 12px 10px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1.5px solid var(--btn-border);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.duration-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+  border-color: rgba(128, 128, 128, 0.6);
+}
+
+.duration-btn:active {
+  transform: scale(0.97);
+}
+
+.duration-cancel {
+  width: 100%;
+  padding: 13px;
+  border-radius: 11px;
+  background: transparent;
+  border: 1.5px solid rgba(128, 128, 128, 0.5);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.duration-cancel:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.duration-cancel:active {
+  transform: scale(0.97);
+}
+
+/* ===== МОДАЛКА "КАМЕРА ВЫКЛЮЧЕНА" ===== */
+.camera-off-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 550;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+
+.camera-off-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.camera-off-modal {
+  background: var(--modal-bg);
+  border-radius: 20px;
+  padding: 30px 26px 24px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  border: 1px solid var(--modal-border);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.9);
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.camera-off-overlay.active .camera-off-modal {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.camera-off-icon {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+  display: block;
+  opacity: 0.6;
+}
+
+.camera-off-text {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 22px;
+}
+
+.camera-off-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1.5px solid rgba(128, 128, 128, 0.5);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.camera-off-btn:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.camera-off-btn:active {
+  transform: scale(0.97);
+}
+
+/* ===== КНОПКА КАМЕРЫ У ПОЛЬЗОВАТЕЛЯ (затемнённая) ===== */
+.bottom-btn.camera-disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  filter: grayscale(0.6);
+}
+
+.bottom-btn.camera-disabled svg {
+  stroke: var(--text-muted);
+  border-color: var(--text-muted);
+}
+
+.bottom-btn.camera-disabled::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  pointer-events: none;
+}
