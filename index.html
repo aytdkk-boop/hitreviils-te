@@ -346,7 +346,7 @@
     </div>
   </div>
 
-<!-- ===== ЭКРАН ПАНЕЛИ УПРАВЛЕНИЯ ===== -->
+ <!-- ===== ЭКРАН ПАНЕЛИ УПРАВЛЕНИЯ ===== -->
 <div class="panel-screen" id="panelScreen">
   <button class="panel-back-btn" id="panelBackBtn" aria-label="Назад">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -354,9 +354,109 @@
       <polyline points="12 19 5 12 12 5"/>
     </svg>
   </button>
+
+  <div class="panel-title">Панель управления</div>
+
+  <div class="panel-body">
+    <div class="users-card" id="usersCard">
+      <div class="users-card-title">Активность</div>
+
+      <div class="users-card-line status-active">
+        <span class="status-dot blink">🟢</span>
+        <span class="users-card-label">Активно</span>
+        <span class="users-card-count" id="activeCount">—</span>
+      </div>
+
+      <div class="users-card-line status-inactive">
+        <span class="status-dot blink">🔴</span>
+        <span class="users-card-label">Не активно</span>
+        <span class="users-card-count" id="inactiveCount">—</span>
+      </div>
+    </div>
+
+    <div class="users-list-card" id="usersListCard">
+      <div class="users-list-card-title">Пользователи</div>
+      <div class="users-list-card-count">
+        <span class="status-dot blink">⚡</span>
+        <span>Всего <span id="totalUsersCount">—</span></span>
+      </div>
+    </div>
+  </div>
 </div>
 
-  <!-- ===== МОДАЛКА ОТЗЫВА КЛЮЧА ===== -->
+<!-- ===== ЭКРАН СПИСКА ПОЛЬЗОВАТЕЛЕЙ ===== -->
+<div class="users-screen" id="usersScreen">
+  <button class="users-back-btn" id="usersBackBtn" aria-label="Назад">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="12 19 5 12 12 5"/>
+    </svg>
+  </button>
+
+  <div class="users-screen-title">Пользователи</div>
+
+  <div class="users-screen-body" id="usersScreenBody">
+    <div class="users-screen-list" id="usersScreenList"></div>
+    <button class="users-load-more" id="usersLoadMoreBtn">Показать ещё</button>
+  </div>
+</div>
+
+<!-- ===== ЭКРАН ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ ===== -->
+<div class="user-screen" id="userScreen">
+  <button class="user-back-btn" id="userBackBtn" aria-label="Назад">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="12 19 5 12 12 5"/>
+    </svg>
+  </button>
+
+  <div class="user-screen-title">Пользователь</div>
+  <div class="user-screen-id">ID : <span id="userScreenId">—</span></div>
+
+  <div class="user-screen-body">
+    <div class="user-key-card" id="userKeyCard">
+      <div class="user-key-card-title">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-key-icon">
+          <circle cx="8" cy="15" r="4"/>
+          <line x1="10.85" y1="12.15" x2="19" y2="4"/>
+          <line x1="18" y1="5" x2="20" y2="7"/>
+          <line x1="15" y1="8" x2="17" y2="10"/>
+        </svg>
+        <span>Ключ пользователя</span>
+      </div>
+
+      <div class="user-key-field" id="userKeyField">—</div>
+
+      <div class="user-key-expires">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-clock-icon">
+          <circle cx="12" cy="12" r="9"/>
+          <polyline points="12 7 12 12 15 14"/>
+        </svg>
+        <span>Активен до : <span id="userKeyExpires">—</span></span>
+      </div>
+
+      <button class="user-key-action-btn revoke" id="userRevokeBtn">Удалить ключ</button>
+      <button class="user-key-action-btn grant" id="userGrantBtn" style="display:none;">Выдать ключ</button>
+    </div>
+
+    <div class="user-camera-card">
+      <div class="user-camera-left">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-camera-icon">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span class="user-camera-label">Камера</span>
+      </div>
+
+      <label class="toggle-switch">
+        <input type="checkbox" id="userCameraToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- ===== МОДАЛКА ОТЗЫВА КЛЮЧА ===== -->
 <div class="confirm-overlay" id="userRevokeOverlay">
   <div class="confirm-modal">
     <div class="confirm-text">Пользователь потеряет доступ к <b>HITREVIL</b>!</div>
@@ -368,7 +468,7 @@
   </div>
 </div>
 
-  <!-- ===== МОДАЛКА ВЫДАЧИ КЛЮЧА (ВЫБОР СРОКА) ===== -->
+<!-- ===== МОДАЛКА ВЫДАЧИ КЛЮЧА ===== -->
 <div class="duration-overlay" id="userGrantOverlay">
   <div class="duration-modal">
     <div class="duration-title">На сколько выдать ключ?</div>
@@ -448,7 +548,7 @@
   </div>
 </div>
 
-  <!-- ===== МОДАЛКА "КАМЕРА ВЫКЛЮЧЕНА" ===== -->
+<!-- ===== МОДАЛКА "КАМЕРА ВЫКЛЮЧЕНА" ===== -->
 <div class="camera-off-overlay" id="cameraOffOverlay">
   <div class="camera-off-modal">
     <div class="camera-off-icon">📷</div>
@@ -457,111 +557,6 @@
   </div>
 </div>
 
-  <div class="panel-title">Панель управления</div>
-
-  <div class="panel-body">
-    <div class="users-card" id="usersCard">
-      <div class="users-card-title">Активность</div>
-
-      <div class="users-card-line status-active">
-        <span class="status-dot blink">🟢</span>
-        <span class="users-card-label">Активно</span>
-        <span class="users-card-count" id="activeCount">—</span>
-      </div>
-
-      <div class="users-card-line status-inactive">
-        <span class="status-dot blink">🔴</span>
-        <span class="users-card-label">Не активно</span>
-        <span class="users-card-count" id="inactiveCount">—</span>
-      </div>
-    </div>
-    
-      <div class="users-list-card" id="usersListCard">
-      <div class="users-list-card-title">Пользователи</div>
-      <div class="users-list-card-count">
-      <span class="status-dot blink">⚡</span>
-      <span>Всего <span id="totalUsersCount">—</span></span>
-   </div>
-</div>
-  </div>
-</div>
-
-  <!-- ===== ЭКРАН СПИСКА ПОЛЬЗОВАТЕЛЕЙ ===== -->
-<div class="users-screen" id="usersScreen">
-  <button class="users-back-btn" id="usersBackBtn" aria-label="Назад">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <line x1="19" y1="12" x2="5" y2="12"/>
-      <polyline points="12 19 5 12 12 5"/>
-    </svg>
-  </button>
-
-  <div class="users-screen-title">Пользователи</div>
-
-  <div class="users-screen-body" id="usersScreenBody">
-    <div class="users-screen-list" id="usersScreenList"></div>
-
-    <button class="users-load-more" id="usersLoadMoreBtn">Показать ещё</button>
-  </div>
-</div>
-
-<!-- ===== ЭКРАН ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ ===== -->
-<div class="user-screen" id="userScreen">
-  <button class="user-back-btn" id="userBackBtn" aria-label="Назад">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <line x1="19" y1="12" x2="5" y2="12"/>
-      <polyline points="12 19 5 12 12 5"/>
-    </svg>
-  </button>
-
-  <div class="user-screen-title">Пользователь</div>
-  <div class="user-screen-id">ID : <span id="userScreenId">—</span></div>
-
-  <div class="user-screen-body">
-
-    <!-- Контейнер с ключом -->
-    <div class="user-key-card" id="userKeyCard">
-      <div class="user-key-card-title">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-key-icon">
-          <circle cx="8" cy="15" r="4"/>
-          <line x1="10.85" y1="12.15" x2="19" y2="4"/>
-          <line x1="18" y1="5" x2="20" y2="7"/>
-          <line x1="15" y1="8" x2="17" y2="10"/>
-        </svg>
-        <span>Ключ пользователя</span>
-      </div>
-
-      <div class="user-key-field" id="userKeyField">—</div>
-
-      <div class="user-key-expires">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-clock-icon">
-          <circle cx="12" cy="12" r="9"/>
-          <polyline points="12 7 12 12 15 14"/>
-        </svg>
-        <span>Активен до : <span id="userKeyExpires">—</span></span>
-      </div>
-
-      <button class="user-key-action-btn revoke" id="userRevokeBtn">Удалить ключ</button>
-      <button class="user-key-action-btn grant" id="userGrantBtn" style="display:none;">Выдать ключ</button>
-    </div>
-
-    <!-- Контейнер с камерой -->
-    <div class="user-camera-card">
-      <div class="user-camera-left">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-camera-icon">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-        <span class="user-camera-label">Камера</span>
-      </div>
-
-      <label class="toggle-switch">
-        <input type="checkbox" id="userCameraToggle">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-
-  </div>
-</div>
   
   <script src="modal.js"></script>
   <script src="settings.js"></script>
