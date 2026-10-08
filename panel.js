@@ -1,4 +1,4 @@
-// panel.js — админ-панель HITREVIL: активность + список пользователей
+// panel.js — админ-панель HITREVIL: активность, список пользователей, профиль
 (function() {
   'use strict';
 
@@ -20,25 +20,48 @@
   const usersScreenList    = document.getElementById('usersScreenList');
   const usersLoadMoreBtn   = document.getElementById('usersLoadMoreBtn');
 
+  // Профиль пользователя
+  const userScreen         = document.getElementById('userScreen');
+  const userBackBtn        = document.getElementById('userBackBtn');
+  const userScreenId       = document.getElementById('userScreenId');
+  const userKeyCard        = document.getElementById('userKeyCard');
+  const userKeyField       = document.getElementById('userKeyField');
+  const userKeyExpires     = document.getElementById('userKeyExpires');
+  const userRevokeBtn      = document.getElementById('userRevokeBtn');
+  const userGrantBtn       = document.getElementById('userGrantBtn');
+  const userCameraToggle   = document.getElementById('userCameraToggle');
+
+  // Модалки
+  const userRevokeOverlay  = document.getElementById('userRevokeOverlay');
+  const userRevokeYesBtn   = document.getElementById('userRevokeYesBtn');
+  const userRevokeNoBtn    = document.getElementById('userRevokeNoBtn');
+
+  const userGrantOverlay   = document.getElementById('userGrantOverlay');
+  const userGrantCancelBtn = document.getElementById('userGrantCancelBtn');
+
   if (!panelScreen) return;
 
   // ===== СОСТОЯНИЕ =====
   let panelOpen = false;
-let usersScreenOpen = false;
-let refreshTimer = null;
-let statusesTimer = null;
+  let usersScreenOpen = false;
+  let userScreenOpen = false;
+  let refreshTimer = null;
+  let statusesTimer = null;
 
-let isAdmin = false;
-  // Список пользователей (для пагинации)
+  let isAdmin = false;
+
   let usersOffset = 0;
   const USERS_LIMIT = 20;
   let usersTotalWithKey = 0;
   let usersLoading = false;
 
+  // Текущий пользователь, открытый в профиле
+  let currentUserTid = null;
+  let currentUserData = null;
+
   // ===== ПРОВЕРКА ПРАВ =====
   async function checkAdmin() {
     if (!window.API_URL) return false;
-
     const key = localStorage.getItem('hitrevil_key') || '';
     if (!key) return false;
 
@@ -49,7 +72,6 @@ let isAdmin = false;
         body: JSON.stringify({ key: key })
       });
       if (!resp.ok) return false;
-
       const data = await resp.json();
       return !!data.is_admin;
     } catch (err) {
@@ -61,12 +83,8 @@ let isAdmin = false;
   async function setupBurgerVisibility() {
     if (!burgerBtn) return;
     burgerBtn.style.display = 'none';
-
     isAdmin = await checkAdmin();
-
-    if (isAdmin) {
-      burgerBtn.style.display = '';
-    }
+    if (isAdmin) burgerBtn.style.display = '';
   }
 
   window.addEventListener('load', function() {
@@ -81,7 +99,6 @@ let isAdmin = false;
   };
 
   // ===== ПАНЕЛЬ УПРАВЛЕНИЯ =====
-
   function openPanel() {
     if (!isAdmin || panelOpen) return;
     panelOpen = true;
@@ -90,7 +107,6 @@ let isAdmin = false;
 
     setTimeout(function() {
       panelScreen.classList.add('active');
-
       setTimeout(function() {
         usersCard.classList.add('visible');
         usersListCard.classList.add('visible');
@@ -119,10 +135,9 @@ let isAdmin = false;
   if (burgerBtn) burgerBtn.addEventListener('click', openPanel);
   if (panelBackBtn) panelBackBtn.addEventListener('click', closePanel);
 
-  // ===== СТАТИСТИКА "АКТИВНОСТЬ" =====
+  // ===== СТАТИСТИКА =====
   async function loadStats() {
     if (!window.API_URL) return;
-
     const key    = localStorage.getItem('hitrevil_key') || '';
     const siteId = localStorage.getItem('hitrevil_site_id') || '';
     if (!key) return;
@@ -133,16 +148,11 @@ let isAdmin = false;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key: key, site_id: siteId })
       });
-      if (!resp.ok) {
-        console.warn('Статистика недоступна:', resp.status);
-        return;
-      }
-
+      if (!resp.ok) return;
       const data = await resp.json();
+
       activeCount.textContent   = Number(data.active_keys   ?? 0);
       inactiveCount.textContent = Number(data.inactive_keys ?? 0);
-
-      // Обновляем "Всего N" на контейнере "Пользователи"
       if (data.total_users != null) {
         totalUsersCount.textContent = Number(data.total_users);
       }
@@ -152,70 +162,53 @@ let isAdmin = false;
   }
 
   // ===== ЭКРАН СПИСКА ПОЛЬЗОВАТЕЛЕЙ =====
-
-  if (usersListCard) {
-    usersListCard.addEventListener('click', openUsersScreen);
-  }
-  if (usersBackBtn) {
-    usersBackBtn.addEventListener('click', closeUsersScreen);
-  }
-  if (usersLoadMoreBtn) {
-    usersLoadMoreBtn.addEventListener('click', loadMoreUsers);
-  }
+  if (usersListCard) usersListCard.addEventListener('click', openUsersScreen);
+  if (usersBackBtn) usersBackBtn.addEventListener('click', closeUsersScreen);
+  if (usersLoadMoreBtn) usersLoadMoreBtn.addEventListener('click', loadMoreUsers);
 
   function openUsersScreen() {
     if (!isAdmin || usersScreenOpen) return;
     usersScreenOpen = true;
 
-    // Плавно скрываем панель
     if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
     usersCard.classList.remove('visible');
     usersListCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
-   setTimeout(function() {
-     usersScreen.classList.add('active');
+    setTimeout(function() {
+      usersScreen.classList.add('active');
 
-     // Первая загрузка — с нуля
-     usersOffset = 0;
-     usersTotalWithKey = 0;
-     usersScreenList.innerHTML = '';
-     usersLoadMoreBtn.classList.remove('visible');
+      usersOffset = 0;
+      usersTotalWithKey = 0;
+      usersScreenList.innerHTML = '';
+      usersLoadMoreBtn.classList.remove('visible');
 
-     loadUsersChunk();
+      loadUsersChunk();
 
-    // Авто-обновление статусов каждые 15 секунд
-    if (statusesTimer) clearInterval(statusesTimer);
-    statusesTimer = setInterval(refreshStatuses, 15000);
-  }, 350);
+      if (statusesTimer) clearInterval(statusesTimer);
+      statusesTimer = setInterval(refreshStatuses, 15000);
+    }, 350);
   }
 
   function closeUsersScreen() {
     if (!usersScreenOpen) return;
     usersScreenOpen = false;
 
-    if (statusesTimer) {
-      clearInterval(statusesTimer);
-      statusesTimer = null;
-    }
+    if (statusesTimer) { clearInterval(statusesTimer); statusesTimer = null; }
 
     usersScreen.classList.remove('active');
 
     setTimeout(function() {
-      // Возвращаемся на панель управления
       panelScreen.classList.add('active');
       setTimeout(function() {
         usersCard.classList.add('visible');
         usersListCard.classList.add('visible');
       }, 120);
 
-      // Возобновляем авто-обновление статистики
       loadStats();
       if (!refreshTimer) refreshTimer = setInterval(loadStats, 15000);
     }, 300);
   }
-
-  // ===== ЗАГРУЗКА СПИСКА ПОЛЬЗОВАТЕЛЕЙ =====
 
   async function loadUsersChunk() {
     if (usersLoading) return;
@@ -236,13 +229,7 @@ let isAdmin = false;
           offset: usersOffset
         })
       });
-
-      if (!resp.ok) {
-        console.warn('Список пользователей недоступен:', resp.status);
-        usersLoading = false;
-        usersLoadMoreBtn.disabled = false;
-        return;
-      }
+      if (!resp.ok) { usersLoading = false; usersLoadMoreBtn.disabled = false; return; }
 
       const data = await resp.json();
       usersTotalWithKey = Number(data.total_with_key || 0);
@@ -251,22 +238,16 @@ let isAdmin = false;
       users.forEach(function(u, idx) {
         const el = createUserItem(u);
         usersScreenList.appendChild(el);
-
-        // Плавное появление с задержкой по индексу
-        setTimeout(function() {
-          el.classList.add('visible');
-        }, 60 * idx + 30);
+        setTimeout(function() { el.classList.add('visible'); }, 60 * idx + 30);
       });
 
       usersOffset += users.length;
 
-      // Показываем "Показать ещё" если есть ещё
       if (usersOffset < usersTotalWithKey && users.length > 0) {
         usersLoadMoreBtn.classList.add('visible');
       } else {
         usersLoadMoreBtn.classList.remove('visible');
       }
-
     } catch (err) {
       console.warn('Ошибка загрузки пользователей:', err);
     } finally {
@@ -275,16 +256,13 @@ let isAdmin = false;
     }
   }
 
-  function loadMoreUsers() {
-    loadUsersChunk();
-  }
+  function loadMoreUsers() { loadUsersChunk(); }
 
-  // ===== СОЗДАНИЕ КАРТОЧКИ ПОЛЬЗОВАТЕЛЯ =====
   function createUserItem(u) {
     const item = document.createElement('div');
     item.className = 'user-item';
     item.dataset.telegramId = String(u.telegram_id);
-    
+
     const dateEl = document.createElement('div');
     dateEl.className = 'user-item-date';
     dateEl.textContent = formatUserDate(u.activated_at);
@@ -301,20 +279,329 @@ let isAdmin = false;
     if (u.site_id) item.appendChild(idEl);
     item.appendChild(statusEl);
 
+    // Тап по карточке — открыть профиль
+    item.addEventListener('click', function() {
+      openUserProfile(u.telegram_id);
+    });
+
     return item;
   }
 
+  // ===== ОБНОВЛЕНИЕ СТАТУСОВ =====
+  async function refreshStatuses() {
+    if (!window.API_URL || !usersScreenOpen) return;
+
+    const items = usersScreenList.querySelectorAll('.user-item');
+    if (!items.length) return;
+
+    const ids = [];
+    items.forEach(function(el) {
+      const id = parseInt(el.dataset.telegramId, 10);
+      if (!isNaN(id)) ids.push(id);
+    });
+    if (!ids.length) return;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/users/statuses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: key, site_id: siteId, telegram_ids: ids })
+      });
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+      const statuses = data.statuses || {};
+
+      items.forEach(function(el) {
+        const id = parseInt(el.dataset.telegramId, 10);
+        if (isNaN(id)) return;
+
+        const active = !!statuses[id] || statuses[String(id)] === true;
+        const statusEl = el.querySelector('.user-item-status');
+        if (!statusEl) return;
+
+        const newEmoji = active ? '🟢' : '🔴';
+        if (statusEl.textContent !== newEmoji) statusEl.textContent = newEmoji;
+      });
+    } catch (err) {
+      console.warn('Не удалось обновить статусы:', err);
+    }
+  }
+
+  // ===== ЭКРАН ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ =====
+  if (userBackBtn) userBackBtn.addEventListener('click', closeUserProfile);
+  if (userRevokeBtn) userRevokeBtn.addEventListener('click', showRevokeModal);
+  if (userGrantBtn) userGrantBtn.addEventListener('click', showGrantModal);
+  if (userCameraToggle) userCameraToggle.addEventListener('change', onCameraToggleChange);
+
+  // Модалки
+  if (userRevokeYesBtn) userRevokeYesBtn.addEventListener('click', confirmRevoke);
+  if (userRevokeNoBtn) userRevokeNoBtn.addEventListener('click', function() {
+    userRevokeOverlay.classList.remove('active');
+  });
+  if (userGrantCancelBtn) userGrantCancelBtn.addEventListener('click', function() {
+    userGrantOverlay.classList.remove('active');
+  });
+
+  // Кнопки выбора срока
+  if (userGrantOverlay) {
+    userGrantOverlay.querySelectorAll('.duration-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const duration = btn.dataset.duration;
+        confirmGrant(duration);
+      });
+    });
+  }
+
+  async function openUserProfile(telegramId) {
+    if (!isAdmin || userScreenOpen) return;
+    userScreenOpen = true;
+    currentUserTid = telegramId;
+
+    // Скрываем список
+    if (statusesTimer) { clearInterval(statusesTimer); statusesTimer = null; }
+    usersScreen.classList.remove('active');
+
+    setTimeout(function() {
+      userScreen.classList.add('active');
+
+      // Загружаем данные профиля
+      loadUserProfile(telegramId);
+    }, 300);
+  }
+
+  function closeUserProfile() {
+    if (!userScreenOpen) return;
+    userScreenOpen = false;
+    currentUserTid = null;
+    currentUserData = null;
+
+    // Скрываем профиль
+    userScreen.classList.remove('active');
+    userKeyCard.classList.remove('visible');
+
+    setTimeout(function() {
+      // Возвращаемся в список пользователей
+      usersScreen.classList.add('active');
+      // Перезагружаем список, чтобы отобразить свежие статусы
+      usersOffset = 0;
+      usersTotalWithKey = 0;
+      usersScreenList.innerHTML = '';
+      usersLoadMoreBtn.classList.remove('visible');
+      loadUsersChunk();
+
+      if (statusesTimer) clearInterval(statusesTimer);
+      statusesTimer = setInterval(refreshStatuses, 15000);
+    }, 300);
+  }
+
+  async function loadUserProfile(telegramId) {
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/user/info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_id: telegramId
+        })
+      });
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+      currentUserData = data;
+
+      renderUserProfile(data);
+    } catch (err) {
+      console.warn('Ошибка загрузки профиля:', err);
+    }
+  }
+
+  function renderUserProfile(data) {
+    // ID
+    userScreenId.textContent = data.site_id || '—';
+
+    // Ключ
+    if (data.key && data.is_active) {
+      // Ключ есть, активен
+      userKeyField.style.display = '';
+      userKeyField.textContent = data.key;
+      userKeyField.parentNode.querySelector('.user-key-card-title').style.display = '';
+      userKeyExpires.parentNode.style.display = '';
+      userKeyExpires.textContent = formatExpires(data.expires_at);
+
+      userRevokeBtn.style.display = '';
+      userGrantBtn.style.display = 'none';
+    } else {
+      // Ключа нет / истёк / удалён
+      userKeyField.style.display = 'none';
+      userKeyField.parentNode.querySelector('.user-key-card-title').style.display = 'none';
+      userKeyExpires.parentNode.style.display = 'none';
+
+      userRevokeBtn.style.display = 'none';
+      userGrantBtn.style.display = '';
+    }
+
+    // Камера
+    userCameraToggle.checked = !!data.camera_enabled;
+
+    // Плавное появление карточки
+    setTimeout(function() {
+      userKeyCard.classList.add('visible');
+    }, 80);
+  }
+
+  function formatExpires(raw) {
+    if (!raw) return '—';
+    try {
+      let s = String(raw).trim();
+      let normalized = s.replace(' ', 'T');
+      if (!normalized.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(normalized)) normalized += 'Z';
+      const dt = new Date(normalized);
+      if (isNaN(dt.getTime())) return raw;
+
+      const pad = n => n < 10 ? '0' + n : '' + n;
+      const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда',
+                    'Четверг', 'Пятница', 'Суббота'];
+
+      return pad(dt.getDate()) + '.' + pad(dt.getMonth() + 1) + '.' + dt.getFullYear() +
+             ' ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes()) +
+             ' ' + days[dt.getDay()];
+    } catch (e) {
+      return raw;
+    }
+  }
+
+  // ===== ОТЗЫВ КЛЮЧА =====
+  function showRevokeModal() {
+    userRevokeOverlay.classList.add('active');
+  }
+
+  async function confirmRevoke() {
+    userRevokeOverlay.classList.remove('active');
+    if (!currentUserTid) return;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/user/revoke', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_id: currentUserTid
+        })
+      });
+      if (!resp.ok) return;
+
+      // Плавно меняем кнопку
+      fadeSwapKeyButtons('grant');
+      // Скрываем ключ
+      userKeyField.style.display = 'none';
+      userKeyField.parentNode.querySelector('.user-key-card-title').style.display = 'none';
+      userKeyExpires.parentNode.style.display = 'none';
+    } catch (err) {
+      console.warn('Ошибка отзыва ключа:', err);
+    }
+  }
+
+  // ===== ВЫДАЧА КЛЮЧА =====
+  function showGrantModal() {
+    userGrantOverlay.classList.add('active');
+  }
+
+  async function confirmGrant(duration) {
+    userGrantOverlay.classList.remove('active');
+    if (!currentUserTid) return;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/user/grant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_id: currentUserTid,
+          duration: duration
+        })
+      });
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+
+      // Перезагружаем профиль — там уже будет новый ключ
+      await loadUserProfile(currentUserTid);
+
+      fadeSwapKeyButtons('revoke');
+    } catch (err) {
+      console.warn('Ошибка выдачи ключа:', err);
+    }
+  }
+
+  // Плавная смена кнопок "Удалить ключ" / "Выдать ключ"
+  function fadeSwapKeyButtons(target) {
+    // target = 'grant' или 'revoke' — какую кнопку хотим показать
+    const from = target === 'grant' ? userRevokeBtn : userGrantBtn;
+    const to   = target === 'grant' ? userGrantBtn : userRevokeBtn;
+
+    from.classList.add('fading');
+    setTimeout(function() {
+      from.style.display = 'none';
+      from.classList.remove('fading');
+      to.style.display = '';
+    }, 350);
+  }
+
+  // ===== ТУМБЛЕР КАМЕРЫ =====
+  async function onCameraToggleChange() {
+    if (!currentUserTid) return;
+
+    const enabled = userCameraToggle.checked;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/user/camera', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_id: currentUserTid,
+          enabled: enabled
+        })
+      });
+      if (!resp.ok) {
+        // Откатываем, если сервер отказал
+        userCameraToggle.checked = !enabled;
+        return;
+      }
+    } catch (err) {
+      console.warn('Ошибка переключения камеры:', err);
+      userCameraToggle.checked = !enabled;
+    }
+  }
+
   // ===== ФОРМАТ ДАТЫ =====
-  // "2026-10-07 14:32:00" → "07.10.2026 - 14:32 Понедельник"
   function formatUserDate(raw) {
     if (!raw) return '—';
 
     try {
       let s = String(raw).trim();
       let normalized = s.replace(' ', 'T');
-      if (!normalized.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(normalized)) {
-        normalized += 'Z';
-      }
+      if (!normalized.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(normalized)) normalized += 'Z';
       const dt = new Date(normalized);
       if (isNaN(dt.getTime())) return raw;
 
@@ -333,63 +620,13 @@ let isAdmin = false;
   // ===== ESCAPE =====
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Escape') return;
+
+    if (userGrantOverlay.classList.contains('active')) { userGrantOverlay.classList.remove('active'); return; }
+    if (userRevokeOverlay.classList.contains('active')) { userRevokeOverlay.classList.remove('active'); return; }
+    if (userScreenOpen) { closeUserProfile(); return; }
     if (usersScreenOpen) { closeUsersScreen(); return; }
     if (panelOpen) { closePanel(); return; }
   });
-
-    // ===== ОБНОВЛЕНИЕ ТОЛЬКО СТАТУСОВ =====
-  async function refreshStatuses() {
-    if (!window.API_URL || !usersScreenOpen) return;
-
-    // Собираем все telegram_id, которые сейчас видны в списке
-    const items = usersScreenList.querySelectorAll('.user-item');
-    if (!items.length) return;
-
-    const ids = [];
-    items.forEach(function(el) {
-      const id = parseInt(el.dataset.telegramId, 10);
-      if (!isNaN(id)) ids.push(id);
-    });
-
-    if (!ids.length) return;
-
-    const key    = localStorage.getItem('hitrevil_key') || '';
-    const siteId = localStorage.getItem('hitrevil_site_id') || '';
-
-    try {
-      const resp = await fetch(window.API_URL + '/api/admin/users/statuses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: key,
-          site_id: siteId,
-          telegram_ids: ids
-        })
-      });
-
-      if (!resp.ok) return;
-
-      const data = await resp.json();
-      const statuses = data.statuses || {};
-
-      // Обновляем эмодзи у каждой карточки на месте
-      items.forEach(function(el) {
-        const id = parseInt(el.dataset.telegramId, 10);
-        if (isNaN(id)) return;
-
-        const active = !!statuses[id] || statuses[String(id)] === true;
-        const statusEl = el.querySelector('.user-item-status');
-        if (!statusEl) return;
-
-        const newEmoji = active ? '🟢' : '🔴';
-        if (statusEl.textContent !== newEmoji) {
-          statusEl.textContent = newEmoji;
-        }
-      });
-    } catch (err) {
-      console.warn('Не удалось обновить статусы:', err);
-    }
-  }
 
   // ===== ЭКСПОРТ =====
   window.refreshAdminPanelStats = loadStats;
