@@ -362,7 +362,7 @@ function startAutoKeyCheck() {
     } catch (err) {
       // Сеть недоступна — не трогаем
     }
-  }, 10000); // каждые 10 секунд
+  }, 4000); // каждые 10 секунд
 }
     
     keyCheckInterval = setInterval(async function() {
