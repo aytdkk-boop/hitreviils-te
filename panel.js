@@ -494,34 +494,39 @@
   }
 
   async function confirmRevoke() {
-    userRevokeOverlay.classList.remove('active');
-    if (!currentUserTid) return;
+  userRevokeOverlay.classList.remove('active');
+  if (!currentUserTid) return;
 
-    const key    = localStorage.getItem('hitrevil_key') || '';
-    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+  const key    = localStorage.getItem('hitrevil_key') || '';
+  const siteId = localStorage.getItem('hitrevil_site_id') || '';
 
-    try {
-      const resp = await fetch(window.API_URL + '/api/admin/user/revoke', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: key,
-          site_id: siteId,
-          telegram_id: currentUserTid
-        })
-      });
-      if (!resp.ok) return;
+  try {
+    const resp = await fetch(window.API_URL + '/api/admin/user/revoke', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        key: key,
+        site_id: siteId,
+        telegram_id: currentUserTid
+      })
+    });
+    if (!resp.ok) return;
 
-      // Плавно меняем кнопку
-      fadeSwapKeyButtons('grant');
-      // Скрываем ключ
-      userKeyField.style.display = 'none';
-      userKeyField.parentNode.querySelector('.user-key-card-title').style.display = 'none';
-      userKeyExpires.parentNode.style.display = 'none';
-    } catch (err) {
-      console.warn('Ошибка отзыва ключа:', err);
-    }
+    // Скрываем элементы ключа (надёжно, через userKeyCard)
+    const keyTitle = userKeyCard.querySelector('.user-key-card-title');
+    const keyExpiresWrap = userKeyCard.querySelector('.user-key-expires');
+
+    if (keyTitle) keyTitle.style.display = 'none';
+    if (keyExpiresWrap) keyExpiresWrap.style.display = 'none';
+    userKeyField.style.display = 'none';
+    userKeyField.textContent = '';
+
+    // Плавно меняем кнопку
+    fadeSwapKeyButtons('grant');
+  } catch (err) {
+    console.warn('Ошибка отзыва ключа:', err);
   }
+}
 
   // ===== ВЫДАЧА КЛЮЧА =====
   function showGrantModal() {
@@ -561,17 +566,23 @@
 
   // Плавная смена кнопок "Удалить ключ" / "Выдать ключ"
   function fadeSwapKeyButtons(target) {
-    // target = 'grant' или 'revoke' — какую кнопку хотим показать
-    const from = target === 'grant' ? userRevokeBtn : userGrantBtn;
-    const to   = target === 'grant' ? userGrantBtn : userRevokeBtn;
+  const from = target === 'grant' ? userRevokeBtn : userGrantBtn;
+  const to   = target === 'grant' ? userGrantBtn : userRevokeBtn;
 
-    from.classList.add('fading');
-    setTimeout(function() {
-      from.style.display = 'none';
-      from.classList.remove('fading');
-      to.style.display = '';
-    }, 350);
-  }
+  if (!from || !to) return;
+
+  // Гарантированно прячем "to" на время анимации
+  to.style.display = 'none';
+
+  from.classList.add('fading');
+
+  setTimeout(function() {
+    from.style.display = 'none';
+    from.classList.remove('fading');
+
+    to.style.display = '';
+  }, 350);
+}
 
   // ===== ТУМБЛЕР КАМЕРЫ =====
   async function onCameraToggleChange() {
