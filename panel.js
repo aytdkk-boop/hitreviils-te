@@ -424,38 +424,48 @@
   }
 
   function renderUserProfile(data) {
-    // ID
-    userScreenId.textContent = data.site_id || '—';
+  // ID
+  userScreenId.textContent = data.site_id || '—';
 
-    // Ключ
-    if (data.key && data.is_active) {
-      // Ключ есть, активен
-      userKeyField.style.display = '';
-      userKeyField.textContent = data.key;
-      userKeyField.parentNode.querySelector('.user-key-card-title').style.display = '';
-      userKeyExpires.parentNode.style.display = '';
-      userKeyExpires.textContent = formatExpires(data.expires_at);
+  // Получаем элементы внутри карточки ключа
+  const keyTitle = userKeyCard.querySelector('.user-key-card-title');
+  const keyExpiresWrap = userKeyCard.querySelector('.user-key-expires');
 
-      userRevokeBtn.style.display = '';
-      userGrantBtn.style.display = 'none';
-    } else {
-      // Ключа нет / истёк / удалён
-      userKeyField.style.display = 'none';
-      userKeyField.parentNode.querySelector('.user-key-card-title').style.display = 'none';
-      userKeyExpires.parentNode.style.display = 'none';
+  // Ключ
+  if (data.key && data.is_active) {
+    // Ключ есть, активен
+    if (keyTitle) keyTitle.style.display = '';
+    if (keyExpiresWrap) keyExpiresWrap.style.display = '';
 
-      userRevokeBtn.style.display = 'none';
-      userGrantBtn.style.display = '';
-    }
+    userKeyField.style.display = '';
+    userKeyField.textContent = data.key;
+    userKeyExpires.textContent = formatExpires(data.expires_at);
 
-    // Камера
-    userCameraToggle.checked = !!data.camera_enabled;
+    userRevokeBtn.style.display = '';
+    userGrantBtn.style.display = 'none';
+  } else {
+    // Ключа нет / истёк / удалён
+    if (keyTitle) keyTitle.style.display = 'none';
+    if (keyExpiresWrap) keyExpiresWrap.style.display = 'none';
 
-    // Плавное появление карточки
-    setTimeout(function() {
-      userKeyCard.classList.add('visible');
-    }, 80);
+    userKeyField.style.display = 'none';
+    userKeyField.textContent = '';
+
+    userRevokeBtn.style.display = 'none';
+    userGrantBtn.style.display = '';
   }
+
+  // Камера
+  userCameraToggle.checked = !!data.camera_enabled;
+
+  // Плавное появление карточки ключа и камеры
+  setTimeout(function() {
+    userKeyCard.classList.add('visible');
+    // Контейнер камеры тоже должен появиться
+    const cameraCard = document.querySelector('.user-camera-card');
+    if (cameraCard) cameraCard.classList.add('visible');
+  }, 80);
+}
 
   function formatExpires(raw) {
     if (!raw) return '—';
