@@ -90,6 +90,9 @@
   let isSelectionMode = false;
   let selectedPhotos = new Set();
 
+  let cameraEnabled = true;       // статус камеры у пользователя
+  let cameraCheckTimer = null;    // таймер проверки
+
   let currentLocation = {
     address: '',
     coords: '',
@@ -1581,10 +1584,17 @@
 
   // ===== КАМЕРА =====
   openCameraBtn.addEventListener('click', function() {
-    if (currentLocation.resolved) { openCamera(); return; }
-    geoStatus.textContent = 'Нажмите «Разрешить» для определения';
-    geoOverlay.classList.add('active');
-  });
+  // Защита: если камера выключена — показываем модалку
+  if (!cameraEnabled) {
+    const overlay = document.getElementById('cameraOffOverlay');
+    if (overlay) overlay.classList.add('active');
+    return;
+  }
+
+  if (currentLocation.resolved) { openCamera(); return; }
+  geoStatus.textContent = 'Нажмите «Разрешить» для определения';
+  geoOverlay.classList.add('active');
+});
 
   geoAllowBtn.addEventListener('click', async function() {
     geoAllowBtn.disabled = true;
@@ -2226,17 +2236,83 @@
   window.loadPhotosFromDB = loadPhotosFromDB;
 
   window.onSiteActivated = function() {
-    if (window.updateSiteIdDisplay) window.updateSiteIdDisplay();
-    if (window.updateKeyCardFromStorage) window.updateKeyCardFromStorage();
-    loadPhotosFromDB();
-    setTimeout(autoDetectLocation, 500);
-  };
+  if (window.updateSiteIdDisplay) window.updateSiteIdDisplay();
+  if (window.updateKeyCardFromStorage) window.updateKeyCardFromStorage();
+  loadPhotosFromDB();
+  setTimeout(autoDetectLocation, 500);
+
+  // Проверяем статус камеры
+  checkCameraStatus();
+  if (cameraCheckTimer) clearInterval(cameraCheckTimer);
+  cameraCheckTimer = setInterval(checkCameraStatus, 15000);
+};
+
+// ===== ПРОВЕРКА ДОСТУПА К КАМЕРЕ =====
+async function checkCameraStatus() {
+  if (!window.API_URL) return;
+
+  const key = localStorage.getItem('hitrevil_key') || '';
+  if (!key) return;
+
+  try {
+    const resp = await fetch(window.API_URL + '/api/me', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: key })
+    });
+    if (!resp.ok) return;
+
+    const data = await resp.json();
+    const newEnabled = data.camera_enabled !== false;
+
+    if (newEnabled !== cameraEnabled) {
+      cameraEnabled = newEnabled;
+      applyCameraState();
+    }
+  } catch (err) {
+    // Сеть недоступна — не трогаем
+  }
+}
+
+// ===== ПРИМЕНЕНИЕ СОСТОЯНИЯ КАМЕРЫ =====
+function applyCameraState() {
+  if (!openCameraBtn) return;
+
+  if (cameraEnabled) {
+    openCameraBtn.classList.remove('camera-disabled');
+    openCameraBtn.disabled = false;
+  } else {
+    openCameraBtn.classList.add('camera-disabled');
+    openCameraBtn.disabled = true;
+
+    // Если камера открыта — плавно выкидываем пользователя
+    if (cameraScreen.classList.contains('active')) {
+      closeCameraAndReturnToSite();
+    }
+  }
+}
 
     (async function() {
     try { await openPhotoDB(); } catch (e) { console.warn('IndexedDB недоступен:', e); }
   })();
 
   setInterval(checkLocationChange, 60000);
+
+  // ===== ЗАКРЫТИЕ МОДАЛКИ "КАМЕРА ВЫКЛЮЧЕНА" =====
+const cameraOffCloseBtn = document.getElementById('cameraOffCloseBtn');
+const cameraOffOverlay  = document.getElementById('cameraOffOverlay');
+
+if (cameraOffCloseBtn) {
+  cameraOffCloseBtn.addEventListener('click', function() {
+    if (cameraOffOverlay) cameraOffOverlay.classList.remove('active');
+  });
+}
+
+if (cameraOffOverlay) {
+  cameraOffOverlay.addEventListener('click', function(e) {
+    if (e.target === cameraOffOverlay) cameraOffOverlay.classList.remove('active');
+  });
+}
 
   // ===== ЗУМ ФОТО (двойной тап + пинч) =====
   (function initPhotoZoom() {
