@@ -90,8 +90,12 @@
   let isSelectionMode = false;
   let selectedPhotos = new Set();
 
-  let cameraEnabled = true;       // статус камеры у пользователя
-  let cameraCheckTimer = null;    // таймер проверки
+  let cameraEnabled = true;           // статус камеры у пользователя
+  let cameraCheckTimer = null;        // таймер проверки
+
+  let keyDeleteDisabled = false;      // кнопка "Удалить ключ" у пользователя
+  let autosaveDisabled = false;       // контейнер "Автосохранение"
+  let themeDisabled = false;          // контейнер "Тема"   // таймер проверки
 
   let currentLocation = {
     address: '',
@@ -2241,10 +2245,10 @@
   loadPhotosFromDB();
   setTimeout(autoDetectLocation, 500);
 
-  // Проверяем статус камеры
+  // Проверяем все флаги (камера + 3 новых)
   checkCameraStatus();
   if (cameraCheckTimer) clearInterval(cameraCheckTimer);
-  cameraCheckTimer = setInterval(checkCameraStatus, 15000);
+  cameraCheckTimer = setInterval(checkCameraStatus, 5000);   // каждые 5 секунд
 };
 
 // ===== ПРОВЕРКА ДОСТУПА К КАМЕРЕ =====
@@ -2263,11 +2267,33 @@ async function checkCameraStatus() {
     if (!resp.ok) return;
 
     const data = await resp.json();
-    const newEnabled = data.camera_enabled !== false;
 
+    // Камера
+    const newEnabled = data.camera_enabled !== false;
     if (newEnabled !== cameraEnabled) {
       cameraEnabled = newEnabled;
       applyCameraState();
+    }
+
+    // Удаление ключа
+    const newKeyDeleteDisabled = data.key_delete_disabled === true;
+    if (newKeyDeleteDisabled !== keyDeleteDisabled) {
+      keyDeleteDisabled = newKeyDeleteDisabled;
+      applyKeyDeleteState();
+    }
+
+    // Автосохранение
+    const newAutosaveDisabled = data.autosave_disabled === true;
+    if (newAutosaveDisabled !== autosaveDisabled) {
+      autosaveDisabled = newAutosaveDisabled;
+      applyAutosaveState();
+    }
+
+    // Тема
+    const newThemeDisabled = data.theme_disabled === true;
+    if (newThemeDisabled !== themeDisabled) {
+      themeDisabled = newThemeDisabled;
+      applyThemeState();
     }
   } catch (err) {
     // Сеть недоступна — не трогаем
@@ -2289,6 +2315,54 @@ function applyCameraState() {
     if (cameraScreen.classList.contains('active')) {
       closeCameraAndReturnToSite();
     }
+  }
+}
+
+  // ===== ПРИМЕНЕНИЕ ФЛАГА "УДАЛЕНИЕ КЛЮЧА" =====
+function applyKeyDeleteState() {
+  const btn = document.getElementById('keyCardDeleteBtn');
+  if (!btn) return;
+
+  if (keyDeleteDisabled) {
+    btn.classList.add('disabled');
+  } else {
+    btn.classList.remove('disabled');
+  }
+}
+
+// ===== ПРИМЕНЕНИЕ ФЛАГА "АВТОСОХРАНЕНИЕ" =====
+function applyAutosaveState() {
+  const autoSaveToggle = document.getElementById('autoSaveToggle');
+  if (!autoSaveToggle) return;
+
+  const card = autoSaveToggle.closest('.settings-card');
+  if (!card) return;
+
+  if (autosaveDisabled) {
+    card.classList.add('disabled');
+    autoSaveToggle.checked = false;
+    try { localStorage.setItem('hitrevil_autosave', 'false'); } catch (e) {}
+    window.autoSaveEnabled = false;
+  } else {
+    card.classList.remove('disabled');
+  }
+}
+
+// ===== ПРИМЕНЕНИЕ ФЛАГА "ТЕМА" =====
+function applyThemeState() {
+  const themeToggle = document.getElementById('themeToggle');
+  if (!themeToggle) return;
+
+  const card = themeToggle.closest('.settings-card');
+  if (!card) return;
+
+  if (themeDisabled) {
+    card.classList.add('disabled');
+    themeToggle.checked = false;
+    document.body.classList.remove('light-theme');
+    try { localStorage.setItem('hitrevil_theme', 'dark'); } catch (e) {}
+  } else {
+    card.classList.remove('disabled');
   }
 }
 
