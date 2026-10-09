@@ -18,7 +18,7 @@
 
   // ===== ПОКАЗ / СКРЫТИЕ КНОПОК ИНТЕРФЕЙСА =====
   function showUIButtons() {
-    document.querySelectorAll('.bottom-btn').forEach(function(btn) {
+    document.querySelectorAll('.nav-btn').forEach(function(btn) {
       btn.classList.add('visible');
       btn.style.opacity = '';
       btn.style.pointerEvents = '';
@@ -26,7 +26,7 @@
   }
 
   function hideUIButtons() {
-    document.querySelectorAll('.bottom-btn').forEach(function(btn) {
+    document.querySelectorAll('.nav-btn').forEach(function(btn) {
       btn.classList.remove('visible');
       btn.style.opacity = '';
       btn.style.pointerEvents = '';
