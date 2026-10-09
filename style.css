@@ -571,73 +571,6 @@ body * {
   color: #ff1744;
 }
 
-/* ===== НИЖНИЙ КОНТЕЙНЕР С КНОПКАМИ (главная) ===== */
-.bottom-bar {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 30px 20px;
-  background: var(--bottom-bar-bg);
-  z-index: 3;
-  border-radius: 20px 20px 0 0;
-  transition: background 0.6s ease;
-}
-
-.bottom-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--btn-bg);
-  border: 1.5px solid var(--btn-border);
-  color: var(--btn-icon);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  outline: none;
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.5s ease, background 0.6s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-}
-
-body.light-theme .bottom-btn {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.4);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.bottom-btn.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.bottom-btn svg {
-  width: 24px;
-  height: 24px;
-  stroke: var(--btn-icon);
-  stroke-width: 1.8;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: stroke 0.6s ease;
-}
-
-body.light-theme .bottom-btn svg {
-  stroke: #000;
-}
-
-.bottom-btn:hover {
-  border-color: rgba(128, 128, 128, 0.6);
-  transform: scale(1.08);
-}
-
-.bottom-btn:active {
-  transform: scale(0.94);
-}
-
 /* ===== СТРАНИЦА НАСТРОЕК ===== */
 .settings-page {
   position: fixed;
@@ -3065,24 +2998,18 @@ body.light-theme .status-inactive { color: #d50000; }
 }
 
 /* ===== КНОПКА КАМЕРЫ У ПОЛЬЗОВАТЕЛЯ (затемнённая) ===== */
-.bottom-btn.camera-disabled {
+.nav-btn.camera-disabled {
   opacity: 0.3;
   pointer-events: none;
   filter: grayscale(0.6);
 }
 
-.bottom-btn.camera-disabled svg {
+.nav-btn.camera-disabled svg {
   stroke: var(--text-muted);
-  border-color: var(--text-muted);
 }
 
-.bottom-btn.camera-disabled::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--text-muted);
-  pointer-events: none;
+.nav-btn.camera-disabled .nav-btn-label {
+  color: var(--text-muted);
 }
 
 /* ===== ЗАТЕМНЕНИЕ ЭЛЕМЕНТОВ У ПОЛЬЗОВАТЕЛЯ (управляется админом) ===== */
