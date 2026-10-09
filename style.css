@@ -2810,10 +2810,7 @@ body.light-theme .status-inactive { color: #d50000; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.5s ease, transform 0.5s ease,
-              border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
 }
 
 .user-camera-card.visible {
@@ -3068,4 +3065,31 @@ body.light-theme .status-inactive { color: #d50000; }
   border-radius: 50%;
   border: 1.5px solid var(--text-muted);
   pointer-events: none;
+}
+
+/* ===== ЗАТЕМНЕНИЕ ЭЛЕМЕНТОВ У ПОЛЬЗОВАТЕЛЯ (управляется админом) ===== */
+
+/* Кнопка "Удалить ключ" в настройках — затемнена */
+.key-card-delete-btn.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Карточка настроек (Автосохранение / Тема) — затемнена целиком */
+.settings-card.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Тумблер внутри заблокированной карточки — нельзя нажать */
+.settings-card.disabled .toggle-switch {
+  pointer-events: none;
+}
+
+/* Плавное затемнение */
+.key-card-delete-btn,
+.settings-card {
+  transition: opacity 0.4s ease, background 0.6s ease, border-color 0.6s ease;
 }
