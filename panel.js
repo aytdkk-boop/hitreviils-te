@@ -29,7 +29,12 @@
   const userKeyExpires     = document.getElementById('userKeyExpires');
   const userRevokeBtn      = document.getElementById('userRevokeBtn');
   const userGrantBtn       = document.getElementById('userGrantBtn');
-  const userCameraToggle   = document.getElementById('userCameraToggle');
+
+  // Тумблеры
+  const userCameraToggle     = document.getElementById('userCameraToggle');
+  const userKeyDeleteToggle  = document.getElementById('userKeyDeleteToggle');
+  const userAutosaveToggle   = document.getElementById('userAutosaveToggle');
+  const userThemeToggle      = document.getElementById('userThemeToggle');
 
   // Модалки
   const userRevokeOverlay  = document.getElementById('userRevokeOverlay');
@@ -55,9 +60,11 @@
   let usersTotalWithKey = 0;
   let usersLoading = false;
 
-  // Текущий пользователь, открытый в профиле
   let currentUserTid = null;
   let currentUserData = null;
+
+  // Флаг: сейчас применяем состояние тумблеров (чтобы не срабатывал change)
+  let applyingToggles = false;
 
   // ===== ПРОВЕРКА ПРАВ =====
   async function checkAdmin() {
@@ -279,7 +286,6 @@
     if (u.site_id) item.appendChild(idEl);
     item.appendChild(statusEl);
 
-    // Тап по карточке — открыть профиль
     item.addEventListener('click', function() {
       openUserProfile(u.telegram_id);
     });
@@ -335,7 +341,12 @@
   if (userBackBtn) userBackBtn.addEventListener('click', closeUserProfile);
   if (userRevokeBtn) userRevokeBtn.addEventListener('click', showRevokeModal);
   if (userGrantBtn) userGrantBtn.addEventListener('click', showGrantModal);
-  if (userCameraToggle) userCameraToggle.addEventListener('change', onCameraToggleChange);
+
+  // Обработчики тумблеров
+  if (userCameraToggle)    userCameraToggle.addEventListener('change', onCameraToggle);
+  if (userKeyDeleteToggle) userKeyDeleteToggle.addEventListener('change', onKeyDeleteToggle);
+  if (userAutosaveToggle)  userAutosaveToggle.addEventListener('change', onAutosaveToggle);
+  if (userThemeToggle)     userThemeToggle.addEventListener('change', onThemeToggle);
 
   // Модалки
   if (userRevokeYesBtn) userRevokeYesBtn.addEventListener('click', confirmRevoke);
@@ -346,12 +357,10 @@
     userGrantOverlay.classList.remove('active');
   });
 
-  // Кнопки выбора срока
   if (userGrantOverlay) {
     userGrantOverlay.querySelectorAll('.duration-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        const duration = btn.dataset.duration;
-        confirmGrant(duration);
+        confirmGrant(btn.dataset.duration);
       });
     });
   }
@@ -361,14 +370,11 @@
     userScreenOpen = true;
     currentUserTid = telegramId;
 
-    // Скрываем список
     if (statusesTimer) { clearInterval(statusesTimer); statusesTimer = null; }
     usersScreen.classList.remove('active');
 
     setTimeout(function() {
       userScreen.classList.add('active');
-
-      // Загружаем данные профиля
       loadUserProfile(telegramId);
     }, 300);
   }
@@ -379,14 +385,11 @@
     currentUserTid = null;
     currentUserData = null;
 
-    // Скрываем профиль
     userScreen.classList.remove('active');
     userKeyCard.classList.remove('visible');
 
     setTimeout(function() {
-      // Возвращаемся в список пользователей
       usersScreen.classList.add('active');
-      // Перезагружаем список, чтобы отобразить свежие статусы
       usersOffset = 0;
       usersTotalWithKey = 0;
       usersScreenList.innerHTML = '';
@@ -416,7 +419,6 @@
 
       const data = await resp.json();
       currentUserData = data;
-
       renderUserProfile(data);
     } catch (err) {
       console.warn('Ошибка загрузки профиля:', err);
@@ -424,48 +426,48 @@
   }
 
   function renderUserProfile(data) {
-  // ID
-  userScreenId.textContent = data.site_id || '—';
+    userScreenId.textContent = data.site_id || '—';
 
-  // Получаем элементы внутри карточки ключа
-  const keyTitle = userKeyCard.querySelector('.user-key-card-title');
-  const keyExpiresWrap = userKeyCard.querySelector('.user-key-expires');
+    const keyTitle = userKeyCard.querySelector('.user-key-card-title');
+    const keyExpiresWrap = userKeyCard.querySelector('.user-key-expires');
 
-  // Ключ
-  if (data.key && data.is_active) {
-    // Ключ есть, активен
-    if (keyTitle) keyTitle.style.display = '';
-    if (keyExpiresWrap) keyExpiresWrap.style.display = '';
+    if (data.key && data.is_active) {
+      if (keyTitle) keyTitle.style.display = '';
+      if (keyExpiresWrap) keyExpiresWrap.style.display = '';
 
-    userKeyField.style.display = '';
-    userKeyField.textContent = data.key;
-    userKeyExpires.textContent = formatExpires(data.expires_at);
+      userKeyField.style.display = '';
+      userKeyField.textContent = data.key;
+      userKeyExpires.textContent = formatExpires(data.expires_at);
 
-    userRevokeBtn.style.display = '';
-    userGrantBtn.style.display = 'none';
-  } else {
-    // Ключа нет / истёк / удалён
-    if (keyTitle) keyTitle.style.display = 'none';
-    if (keyExpiresWrap) keyExpiresWrap.style.display = 'none';
+      userRevokeBtn.style.display = '';
+      userGrantBtn.style.display = 'none';
+    } else {
+      if (keyTitle) keyTitle.style.display = 'none';
+      if (keyExpiresWrap) keyExpiresWrap.style.display = 'none';
 
-    userKeyField.style.display = 'none';
-    userKeyField.textContent = '';
+      userKeyField.style.display = 'none';
+      userKeyField.textContent = '';
 
-    userRevokeBtn.style.display = 'none';
-    userGrantBtn.style.display = '';
+      userRevokeBtn.style.display = 'none';
+      userGrantBtn.style.display = '';
+    }
+
+    // Применяем состояние тумблеров (без вызова change)
+    applyingToggles = true;
+
+    if (userCameraToggle)    userCameraToggle.checked    = !!data.camera_enabled;
+    if (userKeyDeleteToggle) userKeyDeleteToggle.checked = !!data.key_delete_disabled;
+    if (userAutosaveToggle)  userAutosaveToggle.checked  = !!data.autosave_disabled;
+    if (userThemeToggle)     userThemeToggle.checked     = !!data.theme_disabled;
+
+    setTimeout(function() { applyingToggles = false; }, 50);
+
+    setTimeout(function() {
+      userKeyCard.classList.add('visible');
+      const cameraCards = document.querySelectorAll('.user-camera-card');
+      cameraCards.forEach(function(c) { c.classList.add('visible'); });
+    }, 80);
   }
-
-  // Камера
-  userCameraToggle.checked = !!data.camera_enabled;
-
-  // Плавное появление карточки ключа и камеры
-  setTimeout(function() {
-    userKeyCard.classList.add('visible');
-    // Контейнер камеры тоже должен появиться
-    const cameraCard = document.querySelector('.user-camera-card');
-    if (cameraCard) cameraCard.classList.add('visible');
-  }, 80);
-}
 
   function formatExpires(raw) {
     if (!raw) return '—';
@@ -488,111 +490,37 @@
     }
   }
 
-  // ===== ОТЗЫВ КЛЮЧА =====
-  function showRevokeModal() {
-    userRevokeOverlay.classList.add('active');
+  // ===== ОБРАБОТЧИКИ ТУМБЛЕРОВ =====
+  async function sendToggle(control, enabled) {
+    if (!currentUserTid) return true;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/user/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_id: currentUserTid,
+          control: control,
+          enabled: enabled
+        })
+      });
+      return resp.ok;
+    } catch (err) {
+      console.warn('Ошибка тумблера:', err);
+      return false;
+    }
   }
 
-  async function confirmRevoke() {
-  userRevokeOverlay.classList.remove('active');
-  if (!currentUserTid) return;
-
-  const key    = localStorage.getItem('hitrevil_key') || '';
-  const siteId = localStorage.getItem('hitrevil_site_id') || '';
-
-  try {
-    const resp = await fetch(window.API_URL + '/api/admin/user/revoke', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        key: key,
-        site_id: siteId,
-        telegram_id: currentUserTid
-      })
-    });
-    if (!resp.ok) return;
-
-    // Скрываем элементы ключа (надёжно, через userKeyCard)
-    const keyTitle = userKeyCard.querySelector('.user-key-card-title');
-    const keyExpiresWrap = userKeyCard.querySelector('.user-key-expires');
-
-    if (keyTitle) keyTitle.style.display = 'none';
-    if (keyExpiresWrap) keyExpiresWrap.style.display = 'none';
-
-    userKeyField.style.display = 'none';
-    userKeyField.textContent = '';
-
-    // Плавно меняем кнопку
-    fadeSwapKeyButtons('grant');
-  } catch (err) {
-    console.warn('Ошибка отзыва ключа:', err);
-  }
-}
-
-  // ===== ВЫДАЧА КЛЮЧА =====
-  function showGrantModal() {
-    userGrantOverlay.classList.add('active');
-  }
-
-  async function confirmGrant(duration) {
-  userGrantOverlay.classList.remove('active');
-  if (!currentUserTid) return;
-
-  const key    = localStorage.getItem('hitrevil_key') || '';
-  const siteId = localStorage.getItem('hitrevil_site_id') || '';
-
-  try {
-    const resp = await fetch(window.API_URL + '/api/admin/user/grant', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        key: key,
-        site_id: siteId,
-        telegram_id: currentUserTid,
-        duration: duration
-      })
-    });
-    if (!resp.ok) return;
-
-    const data = await resp.json();
-
-    // Перезагружаем профиль — там уже будет новый ключ
-    await loadUserProfile(currentUserTid);
-
-    // Плавно меняем кнопку на "Удалить ключ"
-    fadeSwapKeyButtons('revoke');
-  } catch (err) {
-    console.warn('Ошибка выдачи ключа:', err);
-  }
-}
-
-  // Плавная смена кнопок "Удалить ключ" / "Выдать ключ"
-function fadeSwapKeyButtons(target) {
-  // target = 'grant' или 'revoke' — какую кнопку хотим показать
-  const from = target === 'grant' ? userRevokeBtn : userGrantBtn;
-  const to   = target === 'grant' ? userGrantBtn : userRevokeBtn;
-
-  if (!from || !to) return;
-
-  // Гарантированно прячем "to" на время анимации
-  to.style.display = 'none';
-
-  from.classList.add('fading');
-
-  setTimeout(function() {
-    from.style.display = 'none';
-    from.classList.remove('fading');
-
-    to.style.display = '';
-  }, 350);
-}
-
-  // ===== ТУМБЛЕР КАМЕРЫ =====
-  async function onCameraToggleChange() {
-    if (!currentUserTid) return;
-
+  async function onCameraToggle() {
+    if (applyingToggles) return;
     const enabled = userCameraToggle.checked;
 
+    // Отдельный эндпоинт для камеры (сделан ранее)
     const key    = localStorage.getItem('hitrevil_key') || '';
     const siteId = localStorage.getItem('hitrevil_site_id') || '';
 
@@ -607,15 +535,118 @@ function fadeSwapKeyButtons(target) {
           enabled: enabled
         })
       });
-      if (!resp.ok) {
-        // Откатываем, если сервер отказал
-        userCameraToggle.checked = !enabled;
-        return;
-      }
+      if (!resp.ok) userCameraToggle.checked = !enabled;
     } catch (err) {
-      console.warn('Ошибка переключения камеры:', err);
       userCameraToggle.checked = !enabled;
     }
+  }
+
+  async function onKeyDeleteToggle() {
+    if (applyingToggles) return;
+    const enabled = userKeyDeleteToggle.checked;
+    const ok = await sendToggle('key_delete', enabled);
+    if (!ok) userKeyDeleteToggle.checked = !enabled;
+  }
+
+  async function onAutosaveToggle() {
+    if (applyingToggles) return;
+    const enabled = userAutosaveToggle.checked;
+    const ok = await sendToggle('autosave', enabled);
+    if (!ok) userAutosaveToggle.checked = !enabled;
+  }
+
+  async function onThemeToggle() {
+    if (applyingToggles) return;
+    const enabled = userThemeToggle.checked;
+    const ok = await sendToggle('theme', enabled);
+    if (!ok) userThemeToggle.checked = !enabled;
+  }
+
+  // ===== ОТЗЫВ КЛЮЧА =====
+  function showRevokeModal() {
+    userRevokeOverlay.classList.add('active');
+  }
+
+  async function confirmRevoke() {
+    userRevokeOverlay.classList.remove('active');
+    if (!currentUserTid) return;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/user/revoke', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_id: currentUserTid
+        })
+      });
+      if (!resp.ok) return;
+
+      const keyTitle = userKeyCard.querySelector('.user-key-card-title');
+      const keyExpiresWrap = userKeyCard.querySelector('.user-key-expires');
+
+      if (keyTitle) keyTitle.style.display = 'none';
+      if (keyExpiresWrap) keyExpiresWrap.style.display = 'none';
+
+      userKeyField.style.display = 'none';
+      userKeyField.textContent = '';
+
+      fadeSwapKeyButtons('grant');
+    } catch (err) {
+      console.warn('Ошибка отзыва ключа:', err);
+    }
+  }
+
+  // ===== ВЫДАЧА КЛЮЧА =====
+  function showGrantModal() {
+    userGrantOverlay.classList.add('active');
+  }
+
+  async function confirmGrant(duration) {
+    userGrantOverlay.classList.remove('active');
+    if (!currentUserTid) return;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/admin/user/grant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: key,
+          site_id: siteId,
+          telegram_id: currentUserTid,
+          duration: duration
+        })
+      });
+      if (!resp.ok) return;
+
+      await loadUserProfile(currentUserTid);
+      fadeSwapKeyButtons('revoke');
+    } catch (err) {
+      console.warn('Ошибка выдачи ключа:', err);
+    }
+  }
+
+  function fadeSwapKeyButtons(target) {
+    const from = target === 'grant' ? userRevokeBtn : userGrantBtn;
+    const to   = target === 'grant' ? userGrantBtn : userRevokeBtn;
+
+    if (!from || !to) return;
+
+    to.style.display = 'none';
+    from.classList.add('fading');
+
+    setTimeout(function() {
+      from.style.display = 'none';
+      from.classList.remove('fading');
+      to.style.display = '';
+    }, 350);
   }
 
   // ===== ФОРМАТ ДАТЫ =====
