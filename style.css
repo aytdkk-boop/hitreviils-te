@@ -2149,27 +2149,40 @@ body.fade-in {
   touch-action: none;
 }
 
-/* ===== БУРГЕР-КНОПКА ===== */
+/* ===== ШАПКА: СТРОКА С TITLE И БУРГЕРОМ ===== */
+.header-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+/* .site-title теперь без margin — margin у header-top-row */
+.header-top-row .site-title {
+  margin-bottom: 0;
+}
+
+/* ===== БУРГЕР-КНОПКА (справа от HITREVIL) ===== */
 .burger-btn {
-  position: absolute;
-  top: 24px;
-  left: 20px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
   background: transparent;
-  border: 1.5px solid var(--btn-border);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   padding: 0;
   outline: none;
-  z-index: 10;
-  transition: background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+  opacity: 0.9;
 }
 
-.burger-btn:hover  { background: rgba(128,128,128,0.15); transform: scale(1.08); }
+.burger-btn:hover  { opacity: 1; transform: scale(1.05); }
 .burger-btn:active { transform: scale(0.92); }
 
 .burger-btn svg {
@@ -2180,6 +2193,11 @@ body.fade-in {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: stroke 0.6s ease;
+}
+
+body.light-theme .burger-btn svg {
+  stroke: #000;
 }
 
 body.light-theme .burger-btn svg { stroke: #000; }
