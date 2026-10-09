@@ -414,46 +414,85 @@
   <div class="user-screen-id">ID : <span id="userScreenId">—</span></div>
 
   <div class="user-screen-body">
-    <div class="user-key-card" id="userKeyCard">
-      <div class="user-key-card-title">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-key-icon">
-          <circle cx="8" cy="15" r="4"/>
-          <line x1="10.85" y1="12.15" x2="19" y2="4"/>
-          <line x1="18" y1="5" x2="20" y2="7"/>
-          <line x1="15" y1="8" x2="17" y2="10"/>
-        </svg>
-        <span>Ключ пользователя</span>
-      </div>
 
-      <div class="user-key-field" id="userKeyField">—</div>
-
-      <div class="user-key-expires">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-clock-icon">
-          <circle cx="12" cy="12" r="9"/>
-          <polyline points="12 7 12 12 15 14"/>
-        </svg>
-        <span>Активен до : <span id="userKeyExpires">—</span></span>
-      </div>
-
-      <button class="user-key-action-btn revoke" id="userRevokeBtn">Удалить ключ</button>
-      <button class="user-key-action-btn grant" id="userGrantBtn" style="display:none;">Выдать ключ</button>
+  <!-- Контейнер с ключом -->
+  <div class="user-key-card" id="userKeyCard">
+    <div class="user-key-card-title">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-key-icon">
+        <circle cx="8" cy="15" r="4"/>
+        <line x1="10.85" y1="12.15" x2="19" y2="4"/>
+        <line x1="18" y1="5" x2="20" y2="7"/>
+        <line x1="15" y1="8" x2="17" y2="10"/>
+      </svg>
+      <span>Ключ пользователя</span>
     </div>
 
-    <div class="user-camera-card">
-      <div class="user-camera-left">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-camera-icon">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
-        </svg>
-        <span class="user-camera-label">Камера</span>
-      </div>
+    <div class="user-key-field" id="userKeyField">—</div>
 
-      <label class="toggle-switch">
-        <input type="checkbox" id="userCameraToggle">
-        <span class="toggle-slider"></span>
-      </label>
+    <div class="user-key-expires">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-clock-icon">
+        <circle cx="12" cy="12" r="9"/>
+        <polyline points="12 7 12 12 15 14"/>
+      </svg>
+      <span>Активен до : <span id="userKeyExpires">—</span></span>
     </div>
+
+    <button class="user-key-action-btn revoke" id="userRevokeBtn">Удалить ключ</button>
+    <button class="user-key-action-btn grant" id="userGrantBtn" style="display:none;">Выдать ключ</button>
   </div>
+
+  <!-- Контейнер с камерой -->
+  <div class="user-camera-card">
+    <div class="user-camera-left">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="user-camera-icon">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      <span class="user-camera-label">Камера</span>
+    </div>
+
+    <label class="toggle-switch">
+      <input type="checkbox" id="userCameraToggle">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <!-- Контейнер "Удаление ключа" -->
+  <div class="user-camera-card">
+    <div class="user-camera-left">
+      <span class="user-camera-label">Удаление ключа</span>
+    </div>
+
+    <label class="toggle-switch">
+      <input type="checkbox" id="userKeyDeleteToggle">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <!-- Контейнер "Автоматически сохранять фото" -->
+  <div class="user-camera-card">
+    <div class="user-camera-left">
+      <span class="user-camera-label">Автоматически сохранять фото на устройство</span>
+    </div>
+
+    <label class="toggle-switch">
+      <input type="checkbox" id="userAutosaveToggle">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <!-- Контейнер "Тема приложения" -->
+  <div class="user-camera-card">
+    <div class="user-camera-left">
+      <span class="user-camera-label">Тема приложения</span>
+    </div>
+
+    <label class="toggle-switch">
+      <input type="checkbox" id="userThemeToggle">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
 </div>
 
 <!-- ===== МОДАЛКА ОТЗЫВА КЛЮЧА ===== -->
