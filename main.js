@@ -2460,11 +2460,11 @@ window.openNotifScreen    = openNotifScreen;
   // Проверяем все флаги (камера + 3 новых)
   checkCameraStatus();
   if (cameraCheckTimer) clearInterval(cameraCheckTimer);
-  cameraCheckTimer = setInterval(checkCameraStatus, 5000);   // каждые 5 секунд
-};
+  cameraCheckTimer = setInterval(checkCameraStatus, 5000);
 
   // Уведомления — показать точку и модалку
   if (window.initNotifications) window.initNotifications();
+};
 
 // ===== ПРОВЕРКА ДОСТУПА К КАМЕРЕ =====
 async function checkCameraStatus() {
