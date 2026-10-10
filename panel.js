@@ -690,3 +690,46 @@
     if (usersScreenOpen) { closeUsersScreen(); return; }
     if (panelOpen) { closePanel(); return; }
   });
+
+   // ===== ЭКРАН HITREVIL =====
+  let hitrevilScreenOpen = false;
+
+  function openHitrevilScreen() {
+    if (!isAdmin || hitrevilScreenOpen) return;
+    hitrevilScreenOpen = true;
+
+    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+
+    usersCard.classList.remove('visible');
+    usersListCard.classList.remove('visible');
+    if (hitrevilCard) hitrevilCard.classList.remove('visible');
+    panelScreen.classList.remove('active');
+
+    setTimeout(function() {
+      if (hitrevilScreen) hitrevilScreen.classList.add('active');
+    }, 350);
+  }
+
+  function closeHitrevilScreen() {
+    if (!hitrevilScreenOpen) return;
+    hitrevilScreenOpen = false;
+
+    if (hitrevilScreen) hitrevilScreen.classList.remove('active');
+
+    setTimeout(function() {
+      panelScreen.classList.add('active');
+      setTimeout(function() {
+        usersCard.classList.add('visible');
+        usersListCard.classList.add('visible');
+        if (hitrevilCard) hitrevilCard.classList.add('visible');
+      }, 120);
+
+      loadStats();
+      if (!refreshTimer) refreshTimer = setInterval(loadStats, 15000);
+    }, 300);
+  }
+
+  if (hitrevilCard) hitrevilCard.addEventListener('click', openHitrevilScreen);
+  if (hitrevilBackBtn) hitrevilBackBtn.addEventListener('click', closeHitrevilScreen);
+
+})();
