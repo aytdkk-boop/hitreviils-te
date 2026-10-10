@@ -2239,6 +2239,218 @@
 
   window.loadPhotosFromDB = loadPhotosFromDB;
 
+  // ===================================================================
+// ===== УВЕДОМЛЕНИЯ =================================================
+// ===================================================================
+
+const NOTIF_STORAGE_KEY = 'hitrevil_notif_seen';
+
+// ===== ПЕРВОЕ СООБЩЕНИЕ (приветствие) =====
+// Текст — в одном месте, чтобы потом легко менять.
+const FIRST_NOTIFICATION = {
+  title: 'HITREVIL',
+  text:  'Рад вас видеть в HITREVIL!\n\n' +
+         'Данное приложение создано для работы с фото, ' +
+         'так же вам доступны различные функции.\n\n' +
+         'Спасибо что вы с нами!',
+  // Время подставляется динамически при первом показе
+};
+
+// Элементы
+const notifDot          = document.getElementById('notifDot');
+const firstNotifOverlay = document.getElementById('firstNotifOverlay');
+const firstNotifViewBtn = document.getElementById('firstNotifViewBtn');
+const firstNotifCloseBtn= document.getElementById('firstNotifCloseBtn');
+
+const notificationsScreen = document.getElementById('notificationsScreen');
+const notifBackBtn        = document.getElementById('notifBackBtn');
+const notifList           = document.getElementById('notifList');
+const notificationsBtn    = document.getElementById('notificationsBtn');
+
+// Флаг: открыт ли экран уведомлений
+let notifScreenOpen = false;
+
+// ===== Проверка «просмотрено» =====
+function isNotifSeen() {
+  try {
+    return localStorage.getItem(NOTIF_STORAGE_KEY) === 'true';
+  } catch (e) {
+    return false;
+  }
+}
+
+function markNotifSeen() {
+  try {
+    localStorage.setItem(NOTIF_STORAGE_KEY, 'true');
+  } catch (e) {}
+}
+
+// ===== Показать / скрыть точку =====
+function showNotifDot() {
+  if (notifDot) notifDot.classList.add('visible');
+}
+
+function hideNotifDot() {
+  if (notifDot) notifDot.classList.remove('visible');
+}
+
+// ===== Показать / скрыть модалку =====
+function showFirstNotifModal() {
+  if (firstNotifOverlay) firstNotifOverlay.classList.add('active');
+}
+
+function hideFirstNotifModal() {
+  if (firstNotifOverlay) firstNotifOverlay.classList.remove('active');
+}
+
+// ===== Инициализация при первом входе =====
+function initNotifications() {
+  if (isNotifSeen()) {
+    // Уже смотрел — точку и модалку не показываем
+    hideNotifDot();
+    hideFirstNotifModal();
+    return;
+  }
+
+  // Не смотрел → показываем точку и через небольшую задержку — модалку
+  showNotifDot();
+  setTimeout(showFirstNotifModal, 700);
+}
+
+// ===== Отрисовка карточек в ленте =====
+function renderNotifications() {
+  if (!notifList) return;
+  notifList.innerHTML = '';
+
+  // Пока одно приветственное сообщение.
+  // Время: если сохранено — берём его, иначе текущее.
+  let ts;
+  try {
+    ts = parseInt(localStorage.getItem('hitrevil_notif_time') || '', 10);
+    if (isNaN(ts)) {
+      ts = Date.now();
+      localStorage.setItem('hitrevil_notif_time', String(ts));
+    }
+  } catch (e) {
+    ts = Date.now();
+  }
+
+  const timeStr = formatNotifTime(ts);
+
+  const card = document.createElement('div');
+  card.className = 'notif-card';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'notif-card-title';
+  titleEl.textContent = FIRST_NOTIFICATION.title;
+
+  const textEl = document.createElement('div');
+  textEl.className = 'notif-card-text';
+  textEl.textContent = FIRST_NOTIFICATION.text;
+
+  const timeEl = document.createElement('div');
+  timeEl.className = 'notif-card-time';
+  timeEl.textContent = timeStr;
+
+  card.appendChild(titleEl);
+  card.appendChild(textEl);
+  card.appendChild(timeEl);
+
+  notifList.appendChild(card);
+
+  // Плавное появление
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      card.classList.add('visible');
+    });
+  });
+}
+
+// ===== Формат времени: HH:MM =====
+function formatNotifTime(ts) {
+  const d = new Date(ts);
+  const pad = n => n < 10 ? '0' + n : '' + n;
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+// ===== Открыть экран уведомлений =====
+function openNotifScreen() {
+  if (notifScreenOpen) return;
+  notifScreenOpen = true;
+
+  // Убираем точку и помечаем прочитанным
+  hideNotifDot();
+  markNotifSeen();
+
+  // Закрываем главную и модалку
+  if (mainContent) mainContent.classList.remove('active');
+  hideFirstNotifModal();
+
+  // Строим ленту
+  renderNotifications();
+
+  // Показываем экран уведомлений
+  setTimeout(function() {
+    if (notificationsScreen) notificationsScreen.classList.add('active');
+  }, 250);
+}
+
+// ===== Закрыть экран уведомлений =====
+function closeNotifScreen() {
+  if (!notifScreenOpen) return;
+  notifScreenOpen = false;
+
+  if (notificationsScreen) notificationsScreen.classList.remove('active');
+
+  setTimeout(function() {
+    if (mainContent) mainContent.classList.add('active');
+  }, 300);
+}
+
+// ===== Обработчики =====
+
+// Кнопка "Посмотреть" в модалке
+if (firstNotifViewBtn) {
+  firstNotifViewBtn.addEventListener('click', function() {
+    openNotifScreen();
+  });
+}
+
+// Кнопка "Закрыть" в модалке
+if (firstNotifCloseBtn) {
+  firstNotifCloseBtn.addEventListener('click', function() {
+    hideFirstNotifModal();
+    // точку НЕ убираем, localStorage НЕ трогаем
+  });
+}
+
+// Тап по колокольчику — открыть экран уведомлений
+if (notificationsBtn) {
+  notificationsBtn.addEventListener('click', function() {
+    openNotifScreen();
+  });
+}
+
+// Стрелка назад на экране уведомлений
+if (notifBackBtn) {
+  notifBackBtn.addEventListener('click', function() {
+    closeNotifScreen();
+  });
+}
+
+// Клик по фону модалки — закрываем (как "Закрыть")
+if (firstNotifOverlay) {
+  firstNotifOverlay.addEventListener('click', function(e) {
+    if (e.target === firstNotifOverlay) hideFirstNotifModal();
+  });
+}
+
+// ===== Экспорт (на случай внешнего вызова) =====
+window.initNotifications  = initNotifications;
+window.openNotifScreen    = openNotifScreen;
+
+// ===================================================================
+
   window.onSiteActivated = function() {
   if (window.updateSiteIdDisplay) window.updateSiteIdDisplay();
   if (window.updateKeyCardFromStorage) window.updateKeyCardFromStorage();
@@ -2250,6 +2462,9 @@
   if (cameraCheckTimer) clearInterval(cameraCheckTimer);
   cameraCheckTimer = setInterval(checkCameraStatus, 5000);   // каждые 5 секунд
 };
+
+  // Уведомления — показать точку и модалку
+  if (window.initNotifications) window.initNotifications();
 
 // ===== ПРОВЕРКА ДОСТУПА К КАМЕРЕ =====
 async function checkCameraStatus() {
