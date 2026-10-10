@@ -421,6 +421,112 @@
 </div>
 </div>
 
+<!-- ===== ЭКРАН HITREVIL (глобальные настройки) ===== -->
+<div class="hitrevil-screen" id="hitrevilScreen">
+  <button class="hitrevil-back-btn" id="hitrevilBackBtn" aria-label="Назад">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <line x1="19" y1="12" x2="5" y2="12"/>
+      <polyline points="12 19 5 12 12 5"/>
+    </svg>
+  </button>
+
+  <div class="hitrevil-screen-title">HITREVIL</div>
+
+  <div class="hitrevil-screen-body">
+
+    <!-- ===== Контейнер со статусами ===== -->
+    <div class="hitrevil-status-card" id="hitrevilStatusCard">
+      <div class="hitrevil-status-line">
+        <span class="hitrevil-status-label">Полный запуск</span>
+        <span class="hitrevil-status-value status-off">Не работает</span>
+      </div>
+      <div class="hitrevil-status-line">
+        <span class="hitrevil-status-label">Доступ</span>
+        <span class="hitrevil-status-value status-off">Не работает</span>
+      </div>
+      <div class="hitrevil-status-line">
+        <span class="hitrevil-status-label">Камера</span>
+        <span class="hitrevil-status-value status-off">Не работает</span>
+      </div>
+      <div class="hitrevil-status-line">
+        <span class="hitrevil-status-label">Удалить ключ</span>
+        <span class="hitrevil-status-value status-off">Не работает</span>
+      </div>
+      <div class="hitrevil-status-line">
+        <span class="hitrevil-status-label">Автоматическое сохранение фото на устройство</span>
+        <span class="hitrevil-status-value status-off">Не работает</span>
+      </div>
+      <div class="hitrevil-status-line">
+        <span class="hitrevil-status-label">Тема приложения</span>
+        <span class="hitrevil-status-value status-off">Не работает</span>
+      </div>
+    </div>
+
+    <!-- ===== 6 тумблеров ===== -->
+
+    <div class="hitrevil-toggle-card">
+      <div class="hitrevil-toggle-left">
+        <span class="hitrevil-toggle-label">Полный запуск</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="hitrevilFullToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="hitrevil-toggle-card">
+      <div class="hitrevil-toggle-left">
+        <span class="hitrevil-toggle-label">Доступ</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="hitrevilAccessToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="hitrevil-toggle-card">
+      <div class="hitrevil-toggle-left">
+        <span class="hitrevil-toggle-label">Камера</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="hitrevilCameraToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="hitrevil-toggle-card">
+      <div class="hitrevil-toggle-left">
+        <span class="hitrevil-toggle-label">Удалить ключ</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="hitrevilKeyDeleteToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="hitrevil-toggle-card">
+      <div class="hitrevil-toggle-left">
+        <span class="hitrevil-toggle-label">Автоматическое сохранение фото на устройство</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="hitrevilAutosaveToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="hitrevil-toggle-card">
+      <div class="hitrevil-toggle-left">
+        <span class="hitrevil-toggle-label">Тема приложения</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="hitrevilThemeToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+  </div>
+</div>
+  
 <!-- ===== ЭКРАН ПРОФИЛЯ ПОЛЬЗОВАТЕЛЯ ===== -->
 <div class="user-screen" id="userScreen">
   <button class="user-back-btn" id="userBackBtn" aria-label="Назад">
