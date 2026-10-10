@@ -20,6 +20,11 @@
   const usersScreenList    = document.getElementById('usersScreenList');
   const usersLoadMoreBtn   = document.getElementById('usersLoadMoreBtn');
 
+  // Элементы экрана HITREVIL
+  const hitrevilCard     = document.getElementById('hitrevilCard');
+  const hitrevilScreen   = document.getElementById('hitrevilScreen');
+  const hitrevilBackBtn  = document.getElementById('hitrevilBackBtn');
+
   // Профиль пользователя
   const userScreen         = document.getElementById('userScreen');
   const userBackBtn        = document.getElementById('userBackBtn');
@@ -117,6 +122,7 @@
       setTimeout(function() {
         usersCard.classList.add('visible');
         usersListCard.classList.add('visible');
+        if (hitrevilCard) hitrevilCard.classList.add('visible');
       }, 120);
 
       loadStats();
@@ -132,6 +138,7 @@
 
     usersCard.classList.remove('visible');
     usersListCard.classList.remove('visible');
+    if (hitrevilCard) hitrevilCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
     setTimeout(function() {
@@ -678,12 +685,8 @@
 
     if (userGrantOverlay.classList.contains('active')) { userGrantOverlay.classList.remove('active'); return; }
     if (userRevokeOverlay.classList.contains('active')) { userRevokeOverlay.classList.remove('active'); return; }
+    if (hitrevilScreenOpen) { closeHitrevilScreen(); return; }
     if (userScreenOpen) { closeUserProfile(); return; }
     if (usersScreenOpen) { closeUsersScreen(); return; }
     if (panelOpen) { closePanel(); return; }
   });
-
-  // ===== ЭКСПОРТ =====
-  window.refreshAdminPanelStats = loadStats;
-
-})();
