@@ -3394,3 +3394,220 @@ body.light-theme .status-inactive { color: #d50000; }
   letter-spacing: 0.3px;
   transition: color 0.6s ease;
 }
+
+/* ===== КОНТЕЙНЕР "HITREVIL" В ПАНЕЛИ УПРАВЛЕНИЯ ===== */
+.hitrevil-card {
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease,
+              border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+}
+
+.hitrevil-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hitrevil-card:hover {
+  border-color: rgba(128, 128, 128, 0.5);
+  box-shadow: 0 0 25px rgba(128, 128, 128, 0.15);
+}
+
+.hitrevil-card:active {
+  transform: scale(0.985);
+}
+
+.hitrevil-card-title {
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  transition: color 0.6s ease;
+}
+
+/* ===== ЭКРАН HITREVIL ===== */
+.hitrevil-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 195;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease, background 0.6s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.hitrevil-screen.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hitrevil-screen-title {
+  color: var(--text);
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 24px;
+  transition: color 0.6s ease;
+}
+
+.hitrevil-back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--btn-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 30;
+  padding: 0;
+  outline: none;
+  transition: background 0.3s ease, transform 0.15s ease, border-color 0.3s ease;
+}
+
+.hitrevil-back-btn:hover {
+  background: rgba(128, 128, 128, 0.15);
+  transform: scale(1.08);
+}
+
+.hitrevil-back-btn:active {
+  transform: scale(0.92);
+}
+
+.hitrevil-back-btn svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text);
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hitrevil-screen-body {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 40px;
+}
+
+/* ===== КОНТЕЙНЕР СТАТУСОВ ===== */
+.hitrevil-status-card {
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.3s ease, background 0.6s ease;
+}
+
+.hitrevil-status-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hitrevil-status-line + .hitrevil-status-line {
+  border-top: 1px solid var(--photo-border);
+  padding-top: 14px;
+}
+
+.hitrevil-status-label {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+  flex: 1;
+  transition: color 0.6s ease;
+}
+
+.hitrevil-status-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.6s ease;
+}
+
+/* Статус "Работает" — зелёный */
+.hitrevil-status-value.status-on {
+  color: #00e676;
+}
+
+/* Статус "Не работает" — красный */
+.hitrevil-status-value.status-off {
+  color: #ff5252;
+}
+
+body.light-theme .hitrevil-status-value.status-on {
+  color: #00a844;
+}
+
+body.light-theme .hitrevil-status-value.status-off {
+  color: #d50000;
+}
+
+/* ===== КОНТЕЙНЕРЫ С ТУМБЛЕРАМИ ===== */
+.hitrevil-toggle-card {
+  width: 100%;
+  background: var(--photo-bg);
+  border: 1px solid var(--photo-border);
+  border-radius: 16px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.6s ease;
+}
+
+.hitrevil-toggle-card:hover {
+  border-color: rgba(128, 128, 128, 0.5);
+  box-shadow: 0 0 25px rgba(128, 128, 128, 0.15);
+}
+
+.hitrevil-toggle-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.hitrevil-toggle-label {
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+  transition: color 0.6s ease;
+}
