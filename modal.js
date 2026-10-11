@@ -293,106 +293,6 @@
   }
 
   // ===== ПЕРИОДИЧЕСКАЯ ПРОВЕРКА КЛЮЧА НА СЕРВЕРЕ =====
-  let keyCheckInterval = null;
-
-  function startKeyCheck() {
-    if (keyCheckInterval) return;
-
-  // ===== ПРОВЕРКА ГЛОБАЛЬНОГО ЗАПУСКА =====
-  async function checkGlobalLaunch() {
-    if (!window.API_URL) return;
-
-    // Проверяем, админ ли это
-    let admin = false;
-    const key = localStorage.getItem('hitrevil_key') || '';
-    if (key) {
-    try {
-      const resp = await fetch(API_URL + '/api/me', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: key })
-      });
-      if (resp.ok) {
-        const d = await resp.json();
-        admin = !!d.is_admin;
-      }
-    } catch (e) {}
-  }
-
-  if (admin) {
-    hideGlobalOff();
-    return;
-  }
-
-  try {
-    const resp = await fetch(API_URL + '/api/global');
-    if (!resp.ok) return;
-
-    const data = await resp.json();
-    const isFullLaunch = !!data.full_launch;
-
-    if (!isFullLaunch) {
-      showGlobalOff();
-    } else {
-      hideGlobalOff();
-    }
-  } catch (err) {}
-}
-
-  function showGlobalOff() {
-    if (globalOffActive) return;
-    globalOffActive = true;
-
-    // Показываем окошко ВМЕСТО формы активации
-    modalOverlay.classList.add('hidden');
-    modal.classList.add('fade-out');
-
-    let overlay = document.getElementById('globalOffActivationOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'globalOffActivationOverlay';
-      overlay.className = 'global-off-overlay';
-      overlay.innerHTML = `
-        <div class="global-off-modal">
-          <div class="global-off-text">HITREVIL - временно недоступен.</div>
-          <div class="global-off-subtext">Зайдите через несколько минут!</div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-    }
-
-    requestAnimationFrame(function() {
-      overlay.classList.add('active');
-    });
-  }
-
-  function hideGlobalOff() {
-    if (!globalOffActive) return;
-    globalOffActive = false;
-
-    const overlay = document.getElementById('globalOffActivationOverlay');
-    if (overlay) overlay.classList.remove('active');
-
-    // Возвращаем форму активации, если пользователь ещё не активирован
-    let activated = false;
-    try {
-      activated = localStorage.getItem('hitrevil_activated') === 'true';
-    } catch (e) {}
-
-    if (!activated) {
-      modalOverlay.classList.remove('hidden');
-      modal.classList.remove('fade-out');
-    }
-  }
-
-// ===== АВТО-ПОДХВАТ ВЫДАННОГО КЛЮЧА =====
-// Если админ выдал ключ из панели управления, он автоматически активируется
-let autoKeyCheckInterval = null;
-
-function startAutoKeyCheck() {
-  if (autoKeyCheckInterval) return;
-
-// ===== ПЕРИОДИЧЕСКАЯ ПРОВЕРКА КЛЮЧА НА СЕРВЕРЕ =====
 let keyCheckInterval = null;
 
 function startKeyCheck() {
@@ -438,9 +338,7 @@ function startKeyCheck() {
       } catch (e) {}
 
       location.reload();
-    } catch (err) {
-      // Сеть недоступна — не трогаем
-    }
+    } catch (err) {}
   }, 5000);
 }
 
@@ -587,13 +485,11 @@ function startAutoKeyCheck() {
           autoKeyCheckInterval = null;
         }
       }, 300);
-    } catch (err) {
-      // Сеть недоступна — не трогаем
-    }
+    } catch (err) {}
   }, 4000);
-}
-    
-    keyCheckInterval = setInterval(async function() {
+  }
+
+  keyCheckInterval = setInterval(async function() {
       if (document.hidden) return;
 
       let activated = false;
