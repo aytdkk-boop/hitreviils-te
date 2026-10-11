@@ -100,7 +100,7 @@
       const resp = await fetch(window.API_URL + '/api/me', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: ke7y })
+        body: JSON.stringify({ key: key })
       });
       if (!resp.ok) return false;
       const data = await resp.json();
