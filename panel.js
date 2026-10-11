@@ -21,10 +21,18 @@
   const usersLoadMoreBtn   = document.getElementById('usersLoadMoreBtn');
 
   // Элементы экрана HITREVIL
-  const hitrevilCard     = document.getElementById('hitrevilCard');
-  const hitrevilScreen   = document.getElementById('hitrevilScreen');
-  const hitrevilBackBtn  = document.getElementById('hitrevilBackBtn');
+  const hitrevilCard      = document.getElementById('hitrevilCard');
+  const hitrevilScreen    = document.getElementById('hitrevilScreen');
+  const hitrevilBackBtn   = document.getElementById('hitrevilBackBtn');
+  const hitrevilStatusCard = document.getElementById('hitrevilStatusCard');
 
+  const hitrevilFullToggle       = document.getElementById('hitrevilFullToggle');
+  const hitrevilAccessToggle     = document.getElementById('hitrevilAccessToggle');
+  const hitrevilCameraToggle     = document.getElementById('hitrevilCameraToggle');
+  const hitrevilKeyDeleteToggle  = document.getElementById('hitrevilKeyDeleteToggle');
+  const hitrevilAutosaveToggle   = document.getElementById('hitrevilAutosaveToggle');
+  const hitrevilThemeToggle      = document.getElementById('hitrevilThemeToggle');
+  
   // Профиль пользователя
   const userScreen         = document.getElementById('userScreen');
   const userBackBtn        = document.getElementById('userBackBtn');
@@ -50,15 +58,26 @@
   const userGrantCancelBtn = document.getElementById('userGrantCancelBtn');
 
   if (!panelScreen) return;
-
+  
   // ===== СОСТОЯНИЕ =====
   let panelOpen = false;
   let usersScreenOpen = false;
   let userScreenOpen = false;
+  let hitrevilScreenOpen = false;
   let refreshTimer = null;
   let statusesTimer = null;
 
   let isAdmin = false;
+
+  // Текущие глобальные настройки
+  let globalSettings = {
+    full_launch: false,
+    access:      false,
+    camera:      false,
+    key_delete:  false,
+    autosave:    false,
+    theme:       false
+  };
 
   let usersOffset = 0;
   const USERS_LIMIT = 20;
@@ -81,7 +100,7 @@
       const resp = await fetch(window.API_URL + '/api/me', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: key })
+        body: JSON.stringify({ key: ke7y })
       });
       if (!resp.ok) return false;
       const data = await resp.json();
@@ -691,8 +710,9 @@
     if (panelOpen) { closePanel(); return; }
   });
 
-   // ===== ЭКРАН HITREVIL =====
-  let hitrevilScreenOpen = false;
+  // ===================================================================
+  // ===== ЭКРАН HITREVIL =====
+  // ===================================================================
 
   function openHitrevilScreen() {
     if (!isAdmin || hitrevilScreenOpen) return;
@@ -707,6 +727,9 @@
 
     setTimeout(function() {
       if (hitrevilScreen) hitrevilScreen.classList.add('active');
+
+      // Загружаем актуальные глобальные настройки
+      loadGlobalSettings();
     }, 350);
   }
 
@@ -731,5 +754,216 @@
 
   if (hitrevilCard) hitrevilCard.addEventListener('click', openHitrevilScreen);
   if (hitrevilBackBtn) hitrevilBackBtn.addEventListener('click', closeHitrevilScreen);
+
+  // ===== ЗАГРУЗКА ГЛОБАЛЬНЫХ НАСТРОЕК =====
+  async function loadGlobalSettings() {
+    if (!window.API_URL) return;
+
+    const key    = localStorage.getItem('hitrevil_key') || '';
+    const siteId = localStorage.getItem('hitrevil_site_id') || '';
+    if (!key) return;
+
+    try {
+      const resp = await fetch(window.API_URL + '/api/global');
+      if (!resp.ok) return;
+      const data = await resp.json();
+
+      globalSettings = {
+        full_launch: !!data.full_launch,
+        access:      !!data.access,
+        camera:      !!data.camera,
+        key_delete:  !!data.key_delete,
+        autosave:    !!data.autosave,
+        theme:       !!data.theme
+      };
+
+      applyGlobalSettingsToUI();
+    } catch (err) {
+      console.warn('Не удалось получить глобальные настройки:', err);
+    }
+  }
+
+  // ===== ПРИМЕНЕНИЕ НАСТРОЕК К UI =====
+  function applyGlobalSettingsToUI() {
+    if (hitrevilFullToggle)      hitrevilFullToggle.checked      = globalSettings.full_launch;
+    if (hitrevilAccessToggle)    hitrevilAccessToggle.checked    = globalSettings.access;
+    if (hitrevilCameraToggle)    hitrevilCameraToggle.checked    = globalSettings.camera;
+    if (hitrevilKeyDeleteToggle) hitrevilKeyDeleteToggle.checked = globalSettings.key_delete;
+    if (hitrevilAutosaveToggle)  hitrevilAutosaveToggle.checked  = globalSettings.autosave;
+    if (hitrevilThemeToggle)     hitrevilThemeToggle.checked     = globalSettings.theme;
+
+    // Обновляем статусы
+    updateStatus("Полный запуск",              globalSettings.full_launch);
+    updateStatus("Доступ",                     globalSettings.access);
+    updateStatus("Камера",                     globalSettings.camera);
+    updateStatus("Удалить ключ",               globalSettings.key_delete);
+    updateStatus("Автоматическое сохранение фото на устройство", globalSettings.autosave);
+    updateStatus("Тема приложения",            globalSettings.theme);
+
+    // Блокируем отдельные тумблеры, если full_launch = false
+    const disableOthers = !globalSettings.full_launch;
+    [
+      hitrevilAccessToggle,
+      hitrevilCameraToggle,
+      hitrevilKeyDeleteToggle,
+      hitrevilAutosaveToggle,
+      hitrevilThemeToggle
+    ].forEach(function(t) {
+      if (!t) return;
+      t.disabled = disableOthers;
+      const card = t.closest('.hitrevil-toggle-card');
+      if (card) {
+        if (disableOthers) card.classList.add('disabled');
+        else card.classList.remove('disabled');
+      }
+    });
+  }
+
+  // ===== ОБНОВЛЕНИЕ СТАТУСА (по названию в контейнере) =====
+  function updateStatus(labelText, enabled) {
+    if (!hitrevilStatusCard) return;
+
+    const lines = hitrevilStatusCard.querySelectorAll('.hitrevil-status-line');
+    lines.forEach(function(line) {
+      const label = line.querySelector('.hitrevil-status-label');
+      if (!label) return;
+      if (label.textContent.trim() !== labelText) return;
+
+      const valueEl = line.querySelector('.hitrevil-status-value');
+      if (!valueEl) return;
+
+      if (enabled) {
+        valueEl.textContent = 'Работает';
+        valueEl.classList.remove('status-off');
+        valueEl.classList.add('status-on');
+      } else {
+        valueEl.textContent = 'Не работает';
+        valueEl.classList.remove('status-on');
+        valueEl.classList.add('status-off');
+      }
+    });
+  }
+
+  // ===== ОБРАБОТЧИКИ ТУМБЛЕРОВ =====
+
+  // Мастер-кнопка «Полный запуск»
+  if (hitrevilFullToggle) {
+    hitrevilFullToggle.addEventListener('change', async function() {
+      const enabled = hitrevilFullToggle.checked;
+
+      const key    = localStorage.getItem('hitrevil_key') || '';
+      const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+      try {
+        const resp = await fetch(window.API_URL + '/api/admin/global/full-launch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: key, site_id: siteId, enabled: enabled })
+        });
+        if (!resp.ok) {
+          hitrevilFullToggle.checked = !enabled;
+          return;
+        }
+      } catch (err) {
+        hitrevilFullToggle.checked = !enabled;
+        return;
+      }
+
+      // Обновляем локальное состояние
+      globalSettings.full_launch = enabled;
+      globalSettings.access      = enabled;
+      globalSettings.camera      = enabled;
+      globalSettings.key_delete  = enabled;
+      globalSettings.autosave    = enabled;
+      globalSettings.theme       = enabled;
+
+      // === Через 2 секунды — плавно включаем/выключаем остальные тумблеры ===
+      setTimeout(function() {
+        // Сначала разблокируем/заблокируем остальные тумблеры
+        applyGlobalSettingsToUI();
+
+        // Каскадная смена статусов сверху-вниз
+        animateStatuses(enabled);
+      }, 2000);
+    });
+  }
+
+  // Отдельные тумблеры (работают только если full_launch = true)
+  function bindSingleToggle(el, field, labelText) {
+    if (!el) return;
+    el.addEventListener('change', async function() {
+      if (!globalSettings.full_launch) {
+        el.checked = !el.checked;
+        return;
+      }
+
+      const enabled = el.checked;
+
+      const key    = localStorage.getItem('hitrevil_key') || '';
+      const siteId = localStorage.getItem('hitrevil_site_id') || '';
+
+      try {
+        const resp = await fetch(window.API_URL + '/api/admin/global', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            key: key,
+            site_id: siteId,
+            field: field,
+            enabled: enabled
+          })
+        });
+        if (!resp.ok) {
+          el.checked = !enabled;
+          return;
+        }
+      } catch (err) {
+        el.checked = !enabled;
+        return;
+      }
+
+      globalSettings[field] = enabled;
+      updateStatus(labelText, enabled);
+    });
+  }
+
+  bindSingleToggle(hitrevilAccessToggle,    'access',     'Доступ');
+  bindSingleToggle(hitrevilCameraToggle,    'camera',     'Камера');
+  bindSingleToggle(hitrevilKeyDeleteToggle, 'key_delete', 'Удалить ключ');
+  bindSingleToggle(hitrevilAutosaveToggle,  'autosave',   'Автоматическое сохранение фото на устройство');
+  bindSingleToggle(hitrevilThemeToggle,     'theme',      'Тема приложения');
+
+  // ===== АНИМАЦИЯ СМЕНЫ СТАТУСОВ (сверху-вниз) =====
+  function animateStatuses(enabled) {
+    if (!hitrevilStatusCard) return;
+
+    const lines = hitrevilStatusCard.querySelectorAll('.hitrevil-status-line');
+
+    lines.forEach(function(line, idx) {
+      setTimeout(function() {
+        const valueEl = line.querySelector('.hitrevil-status-value');
+        if (!valueEl) return;
+
+        if (enabled) {
+          valueEl.textContent = 'Работает';
+          valueEl.classList.remove('status-off');
+          valueEl.classList.add('status-on');
+        } else {
+          valueEl.textContent = 'Не работает';
+          valueEl.classList.remove('status-on');
+          valueEl.classList.add('status-off');
+        }
+
+        // Плавное появление
+        valueEl.style.opacity = '0';
+        valueEl.style.transition = 'opacity 0.3s ease';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() {
+            valueEl.style.opacity = '1';
+          });
+        });
+      }, idx * 150);
+    });
+  }
 
 })();
