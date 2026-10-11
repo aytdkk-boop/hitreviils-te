@@ -392,10 +392,151 @@ let autoKeyCheckInterval = null;
 function startAutoKeyCheck() {
   if (autoKeyCheckInterval) return;
 
+// ===== ПЕРИОДИЧЕСКАЯ ПРОВЕРКА КЛЮЧА НА СЕРВЕРЕ =====
+let keyCheckInterval = null;
+
+function startKeyCheck() {
+  if (keyCheckInterval) return;
+
+  keyCheckInterval = setInterval(async function() {
+    if (document.hidden) return;
+
+    let activated = false;
+    let localKey = '';
+    let siteId = '';
+
+    try {
+      activated = localStorage.getItem('hitrevil_activated') === 'true';
+      localKey = localStorage.getItem('hitrevil_key') || '';
+      siteId = localStorage.getItem('hitrevil_site_id') || '';
+    } catch (e) {}
+
+    if (!activated || !localKey) return;
+
+    try {
+      const response = await fetch(API_URL + '/api/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: localKey, site_id: siteId })
+      });
+      const result = await response.json();
+
+      if (result.valid || result.reason === 'already_used') {
+        if (result.expires_at) {
+          try {
+            localStorage.setItem('hitrevil_key_expires', result.expires_at);
+          } catch (e) {}
+        }
+        return;
+      }
+
+      try {
+        localStorage.removeItem('hitrevil_activated');
+        localStorage.removeItem('hitrevil_key');
+        localStorage.removeItem('hitrevil_key_expires');
+        localStorage.removeItem('hitrevil_activated_at');
+      } catch (e) {}
+
+      location.reload();
+    } catch (err) {
+      // Сеть недоступна — не трогаем
+    }
+  }, 5000);
+}
+
+// ===== ПРОВЕРКА ГЛОБАЛЬНОГО ЗАПУСКА =====
+async function checkGlobalLaunch() {
+  if (!window.API_URL) return;
+
+  let admin = false;
+  const key = localStorage.getItem('hitrevil_key') || '';
+  if (key) {
+    try {
+      const resp = await fetch(API_URL + '/api/me', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: key })
+      });
+      if (resp.ok) {
+        const d = await resp.json();
+        admin = !!d.is_admin;
+      }
+    } catch (e) {}
+  }
+
+  if (admin) {
+    hideGlobalOff();
+    return;
+  }
+
+  try {
+    const resp = await fetch(API_URL + '/api/global');
+    if (!resp.ok) return;
+
+    const data = await resp.json();
+    const isFullLaunch = !!data.full_launch;
+
+    if (!isFullLaunch) {
+      showGlobalOff();
+    } else {
+      hideGlobalOff();
+    }
+  } catch (err) {}
+}
+
+function showGlobalOff() {
+  if (globalOffActive) return;
+  globalOffActive = true;
+
+  modalOverlay.classList.add('hidden');
+  modal.classList.add('fade-out');
+
+  let overlay = document.getElementById('globalOffActivationOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'globalOffActivationOverlay';
+    overlay.className = 'global-off-overlay';
+    overlay.innerHTML = `
+      <div class="global-off-modal">
+        <div class="global-off-text">HITREVIL - временно недоступен.</div>
+        <div class="global-off-subtext">Зайдите через несколько минут!</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  requestAnimationFrame(function() {
+    overlay.classList.add('active');
+  });
+}
+
+function hideGlobalOff() {
+  if (!globalOffActive) return;
+  globalOffActive = false;
+
+  const overlay = document.getElementById('globalOffActivationOverlay');
+  if (overlay) overlay.classList.remove('active');
+
+  let activated = false;
+  try {
+    activated = localStorage.getItem('hitrevil_activated') === 'true';
+  } catch (e) {}
+
+  if (!activated) {
+    modalOverlay.classList.remove('hidden');
+    modal.classList.remove('fade-out');
+  }
+}
+
+// ===== АВТО-ПОДХВАТ ВЫДАННОГО КЛЮЧА =====
+let autoKeyCheckInterval = null;
+
+function startAutoKeyCheck() {
+  if (autoKeyCheckInterval) return;
+
   autoKeyCheckInterval = setInterval(async function() {
     if (document.hidden) return;
 
-    // Не проверяем, если уже активированы
     let activated = false;
     try {
       activated = localStorage.getItem('hitrevil_activated') === 'true';
@@ -420,7 +561,6 @@ function startAutoKeyCheck() {
       const data = await resp.json();
       if (!data.has_key || !data.key) return;
 
-      // Сервер вернул ключ — активируем его автоматически
       const newKey = String(data.key).trim();
 
       try {
@@ -432,7 +572,6 @@ function startAutoKeyCheck() {
         }
       } catch (e) {}
 
-      // Плавно закрываем экран активации
       modal.classList.add('fade-out');
       modalOverlay.classList.add('hidden');
 
@@ -443,7 +582,6 @@ function startAutoKeyCheck() {
         startExpiryWatcher();
         startKeyCheck();
 
-        // Останавливаем авто-подхват — мы уже активированы
         if (autoKeyCheckInterval) {
           clearInterval(autoKeyCheckInterval);
           autoKeyCheckInterval = null;
@@ -452,7 +590,7 @@ function startAutoKeyCheck() {
     } catch (err) {
       // Сеть недоступна — не трогаем
     }
-  }, 4000); // каждые 10 секунд
+  }, 4000);
 }
     
     keyCheckInterval = setInterval(async function() {
