@@ -97,6 +97,18 @@
   let autosaveDisabled = false;       // контейнер "Автосохранение"
   let themeDisabled = false;          // контейнер "Тема"   // таймер проверки
 
+  // Глобальные настройки (для всех пользователей)
+  let globalSettings = {
+    full_launch: false,
+    access:      false,
+    camera:      false,
+    key_delete:  false,
+    autosave:    false,
+    theme:       false
+  };
+
+  let globalCheckTimer = null;
+
   let currentLocation = {
     address: '',
     coords: '',
@@ -2452,19 +2464,22 @@ window.openNotifScreen    = openNotifScreen;
 // ===================================================================
 
   window.onSiteActivated = function() {
-  if (window.updateSiteIdDisplay) window.updateSiteIdDisplay();
-  if (window.updateKeyCardFromStorage) window.updateKeyCardFromStorage();
-  loadPhotosFromDB();
-  setTimeout(autoDetectLocation, 500);
+    if (window.updateSiteIdDisplay) window.updateSiteIdDisplay();
+    if (window.updateKeyCardFromStorage) window.updateKeyCardFromStorage();
+    loadPhotosFromDB();
+    setTimeout(autoDetectLocation, 500);
 
-  // Проверяем все флаги (камера + 3 новых)
-  checkCameraStatus();
-  if (cameraCheckTimer) clearInterval(cameraCheckTimer);
-  cameraCheckTimer = setInterval(checkCameraStatus, 5000);
+    checkCameraStatus();
+    if (cameraCheckTimer) clearInterval(cameraCheckTimer);
+    cameraCheckTimer = setInterval(checkCameraStatus, 5000);
 
-  // Уведомления — показать точку и модалку
-  if (window.initNotifications) window.initNotifications();
-};
+    // Глобальные настройки
+    checkGlobalSettings();
+    if (globalCheckTimer) clearInterval(globalCheckTimer);
+    globalCheckTimer = setInterval(checkGlobalSettings, 5000);
+
+    if (window.initNotifications) window.initNotifications();
+ };
 
 // ===== ПРОВЕРКА ДОСТУПА К КАМЕРЕ =====
 async function checkCameraStatus() {
@@ -2513,6 +2528,135 @@ async function checkCameraStatus() {
   } catch (err) {
     // Сеть недоступна — не трогаем
   }
+}
+
+  // ===== ЗАГРУЗКА ГЛОБАЛЬНЫХ НАСТРОЕК =====
+async function checkGlobalSettings() {
+  if (!window.API_URL) return;
+
+  try {
+    const resp = await fetch(window.API_URL + '/api/global');
+    if (!resp.ok) return;
+
+    const data = await resp.json();
+
+    const newSettings = {
+      full_launch: !!data.full_launch,
+      access:      !!data.access,
+      camera:      !!data.camera,
+      key_delete:  !!data.key_delete,
+      autosave:    !!data.autosave,
+      theme:       !!data.theme
+    };
+
+    // Проверяем, изменилось ли что-то
+    const changed = (
+      newSettings.full_launch !== globalSettings.full_launch ||
+      newSettings.access      !== globalSettings.access      ||
+      newSettings.camera      !== globalSettings.camera      ||
+      newSettings.key_delete  !== globalSettings.key_delete  ||
+      newSettings.autosave    !== globalSettings.autosave    ||
+      newSettings.theme       !== globalSettings.theme
+    );
+
+    globalSettings = newSettings;
+
+    if (changed) {
+      applyGlobalSettings();
+    }
+  } catch (err) {
+    // Сеть недоступна — не трогаем
+  }
+}
+
+// ===== ПРИМЕНЕНИЕ ГЛОБАЛЬНЫХ НАСТРОЕК =====
+async function applyGlobalSettings() {
+  // Проверяем, админ ли текущий пользователь
+  let admin = false;
+  try {
+    const key = localStorage.getItem('hitrevil_key') || '';
+    if (key && window.API_URL) {
+      const resp = await fetch(window.API_URL + '/api/me', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: key })
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        admin = !!data.is_admin;
+      }
+    }
+  } catch (e) {}
+
+  // Админ — всё работает всегда
+  if (admin) {
+    hideGlobalOffOverlay();
+    return;
+  }
+
+  // === Обычный пользователь ===
+
+  // 1. Полная блокировка приложения
+  if (!globalSettings.full_launch) {
+    showGlobalOffOverlay();
+    return;
+  } else {
+    hideGlobalOffOverlay();
+  }
+
+  // 2. Камера
+  const newCameraEnabled = globalSettings.camera;
+  if (newCameraEnabled !== cameraEnabled) {
+    cameraEnabled = newCameraEnabled;
+    applyCameraState();
+  }
+
+  // 3. Удаление ключа
+  const newKeyDeleteDisabled = !globalSettings.key_delete;
+  if (newKeyDeleteDisabled !== keyDeleteDisabled) {
+    keyDeleteDisabled = newKeyDeleteDisabled;
+    applyKeyDeleteState();
+  }
+
+  // 4. Автосохранение
+  const newAutosaveDisabled = !globalSettings.autosave;
+  if (newAutosaveDisabled !== autosaveDisabled) {
+    autosaveDisabled = newAutosaveDisabled;
+    applyAutosaveState();
+  }
+
+  // 5. Тема
+  const newThemeDisabled = !globalSettings.theme;
+  if (newThemeDisabled !== themeDisabled) {
+    themeDisabled = newThemeDisabled;
+    applyThemeState();
+  }
+}
+
+  // ===== ОКОШКО «HITREVIL ВРЕМЕННО НЕДОСТУПЕН» =====
+function showGlobalOffOverlay() {
+  let overlay = document.getElementById('globalOffOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'globalOffOverlay';
+    overlay.className = 'global-off-overlay';
+    overlay.innerHTML = `
+      <div class="global-off-modal">
+        <div class="global-off-text">HITREVIL - временно недоступен.</div>
+        <div class="global-off-subtext">Зайдите через несколько минут!</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+  requestAnimationFrame(function() {
+    overlay.classList.add('active');
+  });
+}
+
+function hideGlobalOffOverlay() {
+  const overlay = document.getElementById('globalOffOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
 }
 
 // ===== ПРИМЕНЕНИЕ СОСТОЯНИЯ КАМЕРЫ =====
