@@ -487,53 +487,7 @@ function startAutoKeyCheck() {
       }, 300);
     } catch (err) {}
   }, 4000);
-  }
-
-  keyCheckInterval = setInterval(async function() {
-      if (document.hidden) return;
-
-      let activated = false;
-      let localKey = '';
-      let siteId = '';
-
-      try {
-        activated = localStorage.getItem('hitrevil_activated') === 'true';
-        localKey = localStorage.getItem('hitrevil_key') || '';
-        siteId = localStorage.getItem('hitrevil_site_id') || '';
-      } catch (e) {}
-
-      if (!activated || !localKey) return;
-
-      try {
-        const response = await fetch(API_URL + '/api/check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key: localKey, site_id: siteId })
-        });
-        const result = await response.json();
-
-        if (result.valid || result.reason === 'already_used') {
-          if (result.expires_at) {
-            try {
-              localStorage.setItem('hitrevil_key_expires', result.expires_at);
-            } catch (e) {}
-          }
-          return;
-        }
-
-        try {
-          localStorage.removeItem('hitrevil_activated');
-          localStorage.removeItem('hitrevil_key');
-          localStorage.removeItem('hitrevil_key_expires');
-          localStorage.removeItem('hitrevil_activated_at');
-        } catch (e) {}
-
-        location.reload();
-      } catch (err) {
-        // Сеть недоступна — не трогаем
-      }
-    }, 5000);
-  }
+}
 
   // ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
   window.API_URL = API_URL;
