@@ -2588,44 +2588,54 @@ async function applyGlobalSettings() {
     }
   } catch (e) {}
 
-  // Админ — всё работает всегда
+  // ===== АДМИН — всё работает всегда =====
   if (admin) {
     hideGlobalOffOverlay();
+    hideAccessDeniedOverlay();
     return;
   }
 
-  // === Обычный пользователь ===
+  // ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ =====
 
   // 1. Полная блокировка приложения
   if (!globalSettings.full_launch) {
+    hideAccessDeniedOverlay();
     showGlobalOffOverlay();
     return;
   } else {
     hideGlobalOffOverlay();
   }
 
-  // 2. Камера
+  // 2. Глобальный доступ
+  if (!globalSettings.access) {
+    showAccessDeniedOverlay();
+    return;
+  } else {
+    hideAccessDeniedOverlay();
+  }
+
+  // 3. Камера (глобально)
   const newCameraEnabled = globalSettings.camera;
   if (newCameraEnabled !== cameraEnabled) {
     cameraEnabled = newCameraEnabled;
     applyCameraState();
   }
 
-  // 3. Удаление ключа
+  // 4. Удаление ключа (глобально)
   const newKeyDeleteDisabled = !globalSettings.key_delete;
   if (newKeyDeleteDisabled !== keyDeleteDisabled) {
     keyDeleteDisabled = newKeyDeleteDisabled;
     applyKeyDeleteState();
   }
 
-  // 4. Автосохранение
+  // 5. Автосохранение (глобально)
   const newAutosaveDisabled = !globalSettings.autosave;
   if (newAutosaveDisabled !== autosaveDisabled) {
     autosaveDisabled = newAutosaveDisabled;
     applyAutosaveState();
   }
 
-  // 5. Тема
+  // 6. Тема (глобально)
   const newThemeDisabled = !globalSettings.theme;
   if (newThemeDisabled !== themeDisabled) {
     themeDisabled = newThemeDisabled;
@@ -2635,6 +2645,10 @@ async function applyGlobalSettings() {
 
   // ===== ОКОШКО «HITREVIL ВРЕМЕННО НЕДОСТУПЕН» =====
 function showGlobalOffOverlay() {
+  // Скрываем главную
+  const mc = document.getElementById('mainContent');
+  if (mc) mc.classList.remove('active');
+
   let overlay = document.getElementById('globalOffOverlay');
   if (!overlay) {
     overlay = document.createElement('div');
@@ -2655,8 +2669,41 @@ function showGlobalOffOverlay() {
 
 function hideGlobalOffOverlay() {
   const overlay = document.getElementById('globalOffOverlay');
-  if (!overlay) return;
-  overlay.classList.remove('active');
+  if (overlay) overlay.classList.remove('active');
+
+  const mc = document.getElementById('mainContent');
+  if (mc) mc.classList.add('active');
+}
+
+  // ===== ЗАГЛУШКА «ДОСТУП ЗАКРЫТ» =====
+function showAccessDeniedOverlay() {
+  const mc = document.getElementById('mainContent');
+  if (mc) mc.classList.remove('active');
+
+  let overlay = document.getElementById('accessDeniedOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'accessDeniedOverlay';
+    overlay.className = 'global-off-overlay';
+    overlay.innerHTML = `
+      <div class="global-off-modal">
+        <div class="global-off-text">Доступ закрыт.</div>
+        <div class="global-off-subtext">Обратитесь к администратору.</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  }
+  requestAnimationFrame(function() {
+    overlay.classList.add('active');
+  });
+}
+
+function hideAccessDeniedOverlay() {
+  const overlay = document.getElementById('accessDeniedOverlay');
+  if (overlay) overlay.classList.remove('active');
+
+  const mc = document.getElementById('mainContent');
+  if (mc) mc.classList.add('active');
 }
 
 // ===== ПРИМЕНЕНИЕ СОСТОЯНИЯ КАМЕРЫ =====
