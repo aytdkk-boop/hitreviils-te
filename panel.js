@@ -48,6 +48,7 @@
   const userKeyDeleteToggle  = document.getElementById('userKeyDeleteToggle');
   const userAutosaveToggle   = document.getElementById('userAutosaveToggle');
   const userThemeToggle      = document.getElementById('userThemeToggle');
+  const userAccessToggle     = document.getElementById('userAccessToggle');
 
   // Модалки
   const userRevokeOverlay  = document.getElementById('userRevokeOverlay');
@@ -373,6 +374,7 @@
   if (userKeyDeleteToggle) userKeyDeleteToggle.addEventListener('change', onKeyDeleteToggle);
   if (userAutosaveToggle)  userAutosaveToggle.addEventListener('change', onAutosaveToggle);
   if (userThemeToggle)     userThemeToggle.addEventListener('change', onThemeToggle);
+  if (userAccessToggle)    userAccessToggle.addEventListener('change', onAccessToggle);
 
   // Модалки
   if (userRevokeYesBtn) userRevokeYesBtn.addEventListener('click', confirmRevoke);
@@ -485,6 +487,7 @@
     if (userKeyDeleteToggle) userKeyDeleteToggle.checked = !!data.key_delete_disabled;
     if (userAutosaveToggle)  userAutosaveToggle.checked  = !!data.autosave_disabled;
     if (userThemeToggle)     userThemeToggle.checked     = !!data.theme_disabled;
+    if (userAccessToggle)    userAccessToggle.checked    = !!data.access_disabled;
 
     setTimeout(function() { applyingToggles = false; }, 50);
 
