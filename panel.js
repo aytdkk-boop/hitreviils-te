@@ -809,24 +809,6 @@
     updateStatus("Удалить ключ",               globalSettings.key_delete);
     updateStatus("Автоматическое сохранение фото на устройство", globalSettings.autosave);
     updateStatus("Тема приложения",            globalSettings.theme);
-
-    // Блокируем отдельные тумблеры, если full_launch = false
-    const disableOthers = !globalSettings.full_launch;
-    [
-      hitrevilAccessToggle,
-      hitrevilCameraToggle,
-      hitrevilKeyDeleteToggle,
-      hitrevilAutosaveToggle,
-      hitrevilThemeToggle
-    ].forEach(function(t) {
-      if (!t) return;
-      t.disabled = disableOthers;
-      const card = t.closest('.hitrevil-toggle-card');
-      if (card) {
-        if (disableOthers) card.classList.add('disabled');
-        else card.classList.remove('disabled');
-      }
-    });
   }
 
   // ===== ОБНОВЛЕНИЕ СТАТУСА (по названию в контейнере) =====
@@ -879,7 +861,7 @@
         return;
       }
 
-      // Обновляем локальное состояние
+      // Обновляем локальное состояние — все флаги равны full_launch
       globalSettings.full_launch = enabled;
       globalSettings.access      = enabled;
       globalSettings.camera      = enabled;
@@ -887,14 +869,11 @@
       globalSettings.autosave    = enabled;
       globalSettings.theme       = enabled;
 
-      // === Через 2 секунды — плавно включаем/выключаем остальные тумблеры ===
-      setTimeout(function() {
-        // Сначала разблокируем/заблокируем остальные тумблеры
-        applyGlobalSettingsToUI();
+      // Обновляем UI сразу (без setTimeout)
+      applyGlobalSettingsToUI();
 
-        // Каскадная смена статусов сверху-вниз
-        animateStatuses(enabled);
-      }, 2000);
+      // Каскадная смена статусов сверху-вниз
+      animateStatuses(enabled);
     });
   }
 
@@ -902,11 +881,6 @@
   function bindSingleToggle(el, field, labelText) {
     if (!el) return;
     el.addEventListener('change', async function() {
-      if (!globalSettings.full_launch) {
-        el.checked = !el.checked;
-        return;
-      }
-
       const enabled = el.checked;
 
       const key    = localStorage.getItem('hitrevil_key') || '';
