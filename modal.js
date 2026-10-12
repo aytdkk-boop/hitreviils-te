@@ -417,6 +417,10 @@ function showGlobalOff() {
   if (globalOffActive) return;
   globalOffActive = true;
 
+  //Показываем окошко ВМЕСТО формы активации
+  const mc = document.getElementById('mainContent');
+  if (mc) mc.classList.remove('active');
+
   modalOverlay.classList.add('hidden');
   modal.classList.add('fade-out');
 
@@ -439,22 +443,35 @@ function showGlobalOff() {
   });
 }
 
-function hideGlobalOff() {
-  if (!globalOffActive) return;
-  globalOffActive = false;
+function showGlobalOff() {
+    if (globalOffActive) return;
+    globalOffActive = true;
 
-  const overlay = document.getElementById('globalOffActivationOverlay');
-  if (overlay) overlay.classList.remove('active');
+    // Показываем окошко ВМЕСТО формы активации
+    modalOverlay.classList.add('hidden');
+    modal.classList.add('fade-out');
 
-  let activated = false;
-  try {
-    activated = localStorage.getItem('hitrevil_activated') === 'true';
-  } catch (e) {}
+    // Скрываем главную страницу
+    const mc = document.getElementById('mainContent');
+    if (mc) mc.classList.remove('active');
 
-  if (!activated) {
-    modalOverlay.classList.remove('hidden');
-    modal.classList.remove('fade-out');
-  }
+    let overlay = document.getElementById('globalOffActivationOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'globalOffActivationOverlay';
+      overlay.className = 'global-off-overlay';
+      overlay.innerHTML = `
+        <div class="global-off-modal">
+          <div class="global-off-text">HITREVIL - временно недоступен.</div>
+          <div class="global-off-subtext">Зайдите через несколько минут!</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    requestAnimationFrame(function() {
+      overlay.classList.add('active');
+    });
 }
 
   // ===== ОКОШКО «ДОСТУП ЗАКРЫТ» =====
