@@ -591,6 +591,13 @@
     if (!ok) userThemeToggle.checked = !enabled;
   }
 
+  async function onAccessToggle() {
+    if (applyingToggles) return;
+    const enabled = userAccessToggle.checked;
+    const ok = await sendToggle('access', enabled);
+    if (!ok) userAccessToggle.checked = !enabled;
+  }
+
   // ===== ОТЗЫВ КЛЮЧА =====
   function showRevokeModal() {
     userRevokeOverlay.classList.add('active');
