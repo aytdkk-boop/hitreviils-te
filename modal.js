@@ -513,35 +513,54 @@ function startAutoKeyCheck() {
 
     const [isActive] = await Promise.all([
       activationPromise,
-      new Promise(r => setTimeout(r, 5000))
+      new Promise(r => setTimeout(r, 2000))
     ]);
 
     if (isActive) {
-      showUIButtons();
-      mainContent.classList.add('active');
-      if (window.onSiteActivated) window.onSiteActivated();
-      startExpiryWatcher();
-      startKeyCheck();
+      // ===== ПРОВЕРКА ПЕРЕД ПОКАЗОМ ГЛАВНОЙ =====
+      await checkGlobalLaunch();
+
+      const overlay = document.getElementById('globalOffActivationOverlay');
+      const accessOverlay = document.getElementById('accessDeniedOverlay');
+      const isBlocked = (overlay && overlay.classList.contains('active')) ||
+                        (accessOverlay && accessOverlay.classList.contains('active'));
+
+      if (!isBlocked) {
+        showUIButtons();
+        mainContent.classList.add('active');
+        if (window.onSiteActivated) window.onSiteActivated();
+        startExpiryWatcher();
+        startKeyCheck();
+      }
+
+      // Таймер для отслеживания изменений, пока юзер в приложении
+      if (globalOffTimer) clearInterval(globalOffTimer);
+      globalOffTimer = setInterval(checkGlobalLaunch, 5000);
     } else {
-        // Нет ключа — проверяем глобальный запуск
-  await checkGlobalLaunch();
+      // Нет ключа — проверяем глобальный запуск
+      await checkGlobalLaunch();
 
-  // Показываем форму активации (её могут перекрыть окошком)
-  hideUIButtons();
-  modalOverlay.classList.remove('hidden');
-  modal.classList.remove('fade-out');
-  activateBtn.classList.remove('visible');
-  keyInput.value = '';
-  keyInput.classList.remove('correct', 'wrong');
-  errorMsg.classList.remove('show');
-  lastCheckedKey = '';
-  isKeyCorrect = false;
+      const overlay = document.getElementById('globalOffActivationOverlay');
+      const accessOverlay = document.getElementById('accessDeniedOverlay');
+      const isBlocked = (overlay && overlay.classList.contains('active')) ||
+                        (accessOverlay && accessOverlay.classList.contains('active'));
 
-  // Запускаем таймер проверки глобального запуска
-  if (globalOffTimer) clearInterval(globalOffTimer);
-  globalOffTimer = setInterval(checkGlobalLaunch, 5000);
+      if (!isBlocked) {
+        hideUIButtons();
+        modalOverlay.classList.remove('hidden');
+        modal.classList.remove('fade-out');
+        activateBtn.classList.remove('visible');
+        keyInput.value = '';
+        keyInput.classList.remove('correct', 'wrong');
+        errorMsg.classList.remove('show');
+        lastCheckedKey = '';
+        isKeyCorrect = false;
+      }
 
-  startAutoKeyCheck();
+      if (globalOffTimer) clearInterval(globalOffTimer);
+      globalOffTimer = setInterval(checkGlobalLaunch, 5000);
+
+      startAutoKeyCheck();
     }
   }
 
