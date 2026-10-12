@@ -343,44 +343,75 @@ function startKeyCheck() {
 }
 
 // ===== ПРОВЕРКА ГЛОБАЛЬНОГО ЗАПУСКА =====
-async function checkGlobalLaunch() {
-  if (!window.API_URL) return;
+  async function checkGlobalLaunch() {
+    if (!window.API_URL) return;
 
-  let admin = false;
-  const key = localStorage.getItem('hitrevil_key') || '';
-  if (key) {
-    try {
-      const resp = await fetch(API_URL + '/api/me', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: key })
-      });
-      if (resp.ok) {
-        const d = await resp.json();
-        admin = !!d.is_admin;
-      }
-    } catch (e) {}
-  }
-
-  if (admin) {
-    hideGlobalOff();
-    return;
-  }
-
-  try {
-    const resp = await fetch(API_URL + '/api/global');
-    if (!resp.ok) return;
-
-    const data = await resp.json();
-    const isFullLaunch = !!data.full_launch;
-
-    if (!isFullLaunch) {
-      showGlobalOff();
-    } else {
-      hideGlobalOff();
+    // Проверяем, админ ли это
+    let admin = false;
+    let me = null;
+    const key = localStorage.getItem('hitrevil_key') || '';
+    if (key) {
+      try {
+        const resp = await fetch(API_URL + '/api/me', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: key })
+        });
+        if (resp.ok) {
+          me = await resp.json();
+          admin = !!me.is_admin;
+        }
+      } catch (e) {}
     }
-  } catch (err) {}
-}
+
+    // ===== АДМИН: никогда не показываем заглушку =====
+    if (admin) {
+      hideGlobalOff();
+      hideAccessDenied();
+
+      const activated = localStorage.getItem('hitrevil_activated') === 'true';
+      if (activated) {
+        showUIButtons();
+        mainContent.classList.add('active');
+        if (window.onSiteActivated) window.onSiteActivated();
+      } else {
+        hideUIButtons();
+        modalOverlay.classList.remove('hidden');
+        modal.classList.remove('fade-out');
+      }
+      return;
+    }
+
+    // ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ =====
+    try {
+      const resp = await fetch(API_URL + '/api/global');
+      if (!resp.ok) return;
+
+      const data = await resp.json();
+
+      // 1. Полный запуск
+      if (!data.full_launch) {
+        hideAccessDenied();
+        showGlobalOff();
+        return;
+      }
+      hideGlobalOff();
+
+      // 2. Глобальный доступ
+      if (!data.access) {
+        showAccessDenied();
+        return;
+      }
+      hideAccessDenied();
+
+      // 3. Персональный доступ (только для активированных)
+      if (me && me.access_disabled) {
+        showAccessDenied();
+        return;
+      }
+      hideAccessDenied();
+    } catch (err) {}
+  }
 
 function showGlobalOff() {
   if (globalOffActive) return;
@@ -425,6 +456,39 @@ function hideGlobalOff() {
     modal.classList.remove('fade-out');
   }
 }
+
+  // ===== ОКОШКО «ДОСТУП ЗАКРЫТ» =====
+  function showAccessDenied() {
+    modalOverlay.classList.add('hidden');
+    modal.classList.add('fade-out');
+
+    // Скрываем главную страницу
+    const mc = document.getElementById('mainContent');
+    if (mc) mc.classList.remove('active');
+
+    let overlay = document.getElementById('accessDeniedOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'accessDeniedOverlay';
+      overlay.className = 'global-off-overlay';
+      overlay.innerHTML = `
+        <div class="global-off-modal">
+          <div class="global-off-text">Доступ закрыт.</div>
+          <div class="global-off-subtext">Обратитесь к администратору.</div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    requestAnimationFrame(function() {
+      overlay.classList.add('active');
+    });
+  }
+
+  function hideAccessDenied() {
+    const overlay = document.getElementById('accessDeniedOverlay');
+    if (overlay) overlay.classList.remove('active');
+  }
 
 // ===== АВТО-ПОДХВАТ ВЫДАННОГО КЛЮЧА =====
 let autoKeyCheckInterval = null;
