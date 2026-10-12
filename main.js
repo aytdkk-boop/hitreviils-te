@@ -2498,32 +2498,54 @@ async function checkCameraStatus() {
 
     const data = await resp.json();
 
-    // Камера
-    const newEnabled = data.camera_enabled !== false;
-    if (newEnabled !== cameraEnabled) {
-      cameraEnabled = newEnabled;
+    // ===== КАМЕРА: работает ТОЛЬКО если И глобально, И персонально включено =====
+    const globalCameraOn = globalSettings.camera;
+    const personalCameraOn = data.camera_enabled !== false;
+    const newCameraEnabled = globalCameraOn && personalCameraOn;
+    if (newCameraEnabled !== cameraEnabled) {
+      cameraEnabled = newCameraEnabled;
       applyCameraState();
     }
 
-    // Удаление ключа
-    const newKeyDeleteDisabled = data.key_delete_disabled === true;
+    // ===== УДАЛЕНИЕ КЛЮЧА: глобально + персонально =====
+    const globalKeyDeleteOn = globalSettings.key_delete;
+    const personalKeyDeleteDisabled = data.key_delete_disabled === true;
+    const newKeyDeleteDisabled = !globalKeyDeleteOn || personalKeyDeleteDisabled;
     if (newKeyDeleteDisabled !== keyDeleteDisabled) {
       keyDeleteDisabled = newKeyDeleteDisabled;
       applyKeyDeleteState();
     }
 
-    // Автосохранение
-    const newAutosaveDisabled = data.autosave_disabled === true;
+    // ===== АВТОСОХРАНЕНИЕ: глобально + персонально =====
+    const globalAutosaveOn = globalSettings.autosave;
+    const personalAutosaveDisabled = data.autosave_disabled === true;
+    const newAutosaveDisabled = !globalAutosaveOn || personalAutosaveDisabled;
     if (newAutosaveDisabled !== autosaveDisabled) {
       autosaveDisabled = newAutosaveDisabled;
       applyAutosaveState();
     }
 
-    // Тема
-    const newThemeDisabled = data.theme_disabled === true;
+    // ===== ТЕМА: глобально + персонально =====
+    const globalThemeOn = globalSettings.theme;
+    const personalThemeDisabled = data.theme_disabled === true;
+    const newThemeDisabled = !globalThemeOn || personalThemeDisabled;
     if (newThemeDisabled !== themeDisabled) {
       themeDisabled = newThemeDisabled;
       applyThemeState();
+    }
+
+    // ===== ДОСТУП: глобально + персонально =====
+    const globalAccessOn = globalSettings.access;
+    const personalAccessDisabled = data.access_disabled === true;
+    const accessDenied = !globalAccessOn || personalAccessDisabled;
+
+    if (accessDenied) {
+      showAccessDeniedOverlay();
+    } else {
+      // Показываем доступ только если full_launch тоже включён
+      if (globalSettings.full_launch) {
+        hideAccessDeniedOverlay();
+      }
     }
   } catch (err) {
     // Сеть недоступна — не трогаем
