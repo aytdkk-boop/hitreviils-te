@@ -97,8 +97,14 @@
   let autosaveDisabled = false;       // контейнер "Автосохранение"
   let themeDisabled = false;          // контейнер "Тема"   // таймер проверки
 
-  // Проверяет, открыта ли админ-панель или её раздел
+  // Проверяет, открыта ли админ-панель, её раздел, или идёт переход между ними
   function isPanelOpen() {
+    // Если панель сейчас в процессе перехода — считаем её открытой,
+    // чтобы не трогать mainContent в эти миллисекунды
+    if (window.isPanelTransitioning && window.isPanelTransitioning()) {
+      return true;
+    }
+
     const ids = ['panelScreen', 'usersScreen', 'userScreen', 'hitrevilScreen'];
     return ids.some(function(id) {
       const el = document.getElementById(id);
