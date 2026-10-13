@@ -2498,7 +2498,22 @@ async function checkCameraStatus() {
 
     const data = await resp.json();
 
-    // ===== КАМЕРА: работает ТОЛЬКО если И глобально, И персонально включено =====
+    // ===== АДМИН: не применяем к нему НИКАКИХ блокировок =====
+    if (data.is_admin) {
+      hideAccessDeniedOverlay();
+      hideGlobalOffOverlay();
+
+      // Убеждаемся, что у админа всё разблокировано
+      if (!cameraEnabled) { cameraEnabled = true; applyCameraState(); }
+      if (keyDeleteDisabled) { keyDeleteDisabled = false; applyKeyDeleteState(); }
+      if (autosaveDisabled) { autosaveDisabled = false; applyAutosaveState(); }
+      if (themeDisabled) { themeDisabled = false; applyThemeState(); }
+      return;
+    }
+
+    // ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ =====
+
+    // КАМЕРА
     const globalCameraOn = globalSettings.camera;
     const personalCameraOn = data.camera_enabled !== false;
     const newCameraEnabled = globalCameraOn && personalCameraOn;
@@ -2507,7 +2522,7 @@ async function checkCameraStatus() {
       applyCameraState();
     }
 
-    // ===== УДАЛЕНИЕ КЛЮЧА: глобально + персонально =====
+    // УДАЛЕНИЕ КЛЮЧА
     const globalKeyDeleteOn = globalSettings.key_delete;
     const personalKeyDeleteDisabled = data.key_delete_disabled === true;
     const newKeyDeleteDisabled = !globalKeyDeleteOn || personalKeyDeleteDisabled;
@@ -2516,7 +2531,7 @@ async function checkCameraStatus() {
       applyKeyDeleteState();
     }
 
-    // ===== АВТОСОХРАНЕНИЕ: глобально + персонально =====
+    // АВТОСОХРАНЕНИЕ
     const globalAutosaveOn = globalSettings.autosave;
     const personalAutosaveDisabled = data.autosave_disabled === true;
     const newAutosaveDisabled = !globalAutosaveOn || personalAutosaveDisabled;
@@ -2525,7 +2540,7 @@ async function checkCameraStatus() {
       applyAutosaveState();
     }
 
-    // ===== ТЕМА: глобально + персонально =====
+    // ТЕМА
     const globalThemeOn = globalSettings.theme;
     const personalThemeDisabled = data.theme_disabled === true;
     const newThemeDisabled = !globalThemeOn || personalThemeDisabled;
@@ -2534,7 +2549,7 @@ async function checkCameraStatus() {
       applyThemeState();
     }
 
-    // ===== ДОСТУП: глобально + персонально =====
+    // ДОСТУП
     const globalAccessOn = globalSettings.access;
     const personalAccessDisabled = data.access_disabled === true;
     const accessDenied = !globalAccessOn || personalAccessDisabled;
@@ -2542,7 +2557,6 @@ async function checkCameraStatus() {
     if (accessDenied) {
       showAccessDeniedOverlay();
     } else {
-      // Показываем доступ только если full_launch тоже включён
       if (globalSettings.full_launch) {
         hideAccessDeniedOverlay();
       }
