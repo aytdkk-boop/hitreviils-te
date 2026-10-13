@@ -2750,6 +2750,8 @@ function showAccessDeniedOverlay() {
 }
 
 function hideAccessDeniedOverlay() {
+  if (isPanelOpen()) return;
+  
   const overlay = document.getElementById('accessDeniedOverlay');
   if (overlay) overlay.classList.remove('active');
 
