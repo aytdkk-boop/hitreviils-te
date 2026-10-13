@@ -414,36 +414,6 @@ function startKeyCheck() {
   }
 
 function showGlobalOff() {
-  if (globalOffActive) return;
-  globalOffActive = true;
-
-  //Показываем окошко ВМЕСТО формы активации
-  const mc = document.getElementById('mainContent');
-  if (mc) mc.classList.remove('active');
-
-  modalOverlay.classList.add('hidden');
-  modal.classList.add('fade-out');
-
-  let overlay = document.getElementById('globalOffActivationOverlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'globalOffActivationOverlay';
-    overlay.className = 'global-off-overlay';
-    overlay.innerHTML = `
-      <div class="global-off-modal">
-        <div class="global-off-text">HITREVIL - временно недоступен.</div>
-        <div class="global-off-subtext">Зайдите через несколько минут!</div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-  }
-
-  requestAnimationFrame(function() {
-    overlay.classList.add('active');
-  });
-}
-
-function showGlobalOff() {
     if (globalOffActive) return;
     globalOffActive = true;
 
