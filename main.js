@@ -97,6 +97,15 @@
   let autosaveDisabled = false;       // контейнер "Автосохранение"
   let themeDisabled = false;          // контейнер "Тема"   // таймер проверки
 
+  // Проверяет, открыта ли админ-панель или её раздел
+  function isPanelOpen() {
+    const ids = ['panelScreen', 'usersScreen', 'userScreen', 'hitrevilScreen'];
+    return ids.some(function(id) {
+      const el = document.getElementById(id);
+      return el && el.classList.contains('active');
+    });
+  }
+
   // Глобальные настройки (для всех пользователей)
   let globalSettings = {
     full_launch: false,
@@ -2681,6 +2690,8 @@ async function applyGlobalSettings() {
 
   // ===== ОКОШКО «HITREVIL ВРЕМЕННО НЕДОСТУПЕН» =====
 function showGlobalOffOverlay() {
+  if (isPanelOpen()) return;
+  
   // Скрываем главную
   const mc = document.getElementById('mainContent');
   if (mc) mc.classList.remove('active');
@@ -2704,6 +2715,8 @@ function showGlobalOffOverlay() {
 }
 
 function hideGlobalOffOverlay() {
+  if (isPanelOpen()) return;
+  
   const overlay = document.getElementById('globalOffOverlay');
   if (overlay) overlay.classList.remove('active');
 
@@ -2713,6 +2726,8 @@ function hideGlobalOffOverlay() {
 
   // ===== ЗАГЛУШКА «ДОСТУП ЗАКРЫТ» =====
 function showAccessDeniedOverlay() {
+  if (isPanelOpen()) return;
+  
   const mc = document.getElementById('mainContent');
   if (mc) mc.classList.remove('active');
 
