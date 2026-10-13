@@ -137,6 +137,8 @@
 
     mainContent.classList.remove('active');
 
+    let panelTransitioning = true;
+
     setTimeout(function() {
       panelScreen.classList.add('active');
       setTimeout(function() {
@@ -147,6 +149,8 @@
 
       loadStats();
       refreshTimer = setInterval(loadStats, 15000);
+
+      let panelTransitioning = false;
     }, 250);
   }
 
@@ -161,8 +165,12 @@
     if (hitrevilCard) hitrevilCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
+    let panelTransitioning = true;
+
     setTimeout(function() {
       mainContent.classList.add('active');
+
+      let panelTransitioning = false;
     }, 300);
   }
 
@@ -209,6 +217,8 @@
     usersListCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
+    let panelTransitioning = true;
+
     setTimeout(function() {
       usersScreen.classList.add('active');
 
@@ -221,6 +231,8 @@
 
       if (statusesTimer) clearInterval(statusesTimer);
       statusesTimer = setInterval(refreshStatuses, 15000);
+
+      let panelTransitioning = false;
     }, 350);
   }
 
@@ -232,6 +244,8 @@
 
     usersScreen.classList.remove('active');
 
+    let panelTransitioning = true;
+
     setTimeout(function() {
       panelScreen.classList.add('active');
       setTimeout(function() {
@@ -241,6 +255,8 @@
 
       loadStats();
       if (!refreshTimer) refreshTimer = setInterval(loadStats, 15000);
+
+      let panelTransitioning = false;
     }, 300);
   }
 
@@ -401,9 +417,13 @@
     if (statusesTimer) { clearInterval(statusesTimer); statusesTimer = null; }
     usersScreen.classList.remove('active');
 
+    let panelTransitioning = true;
+
     setTimeout(function() {
       userScreen.classList.add('active');
       loadUserProfile(telegramId);
+
+      let panelTransitioning = false;
     }, 300);
   }
 
@@ -416,6 +436,8 @@
     userScreen.classList.remove('active');
     userKeyCard.classList.remove('visible');
 
+    let panelTransitioning = true;
+
     setTimeout(function() {
       usersScreen.classList.add('active');
       usersOffset = 0;
@@ -426,6 +448,8 @@
 
       if (statusesTimer) clearInterval(statusesTimer);
       statusesTimer = setInterval(refreshStatuses, 15000);
+
+      let panelTransitioning = false;
     }, 300);
   }
 
@@ -735,11 +759,15 @@
     if (hitrevilCard) hitrevilCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
+    let panelTransitioning = true;
+
     setTimeout(function() {
       if (hitrevilScreen) hitrevilScreen.classList.add('active');
 
       // Загружаем актуальные глобальные настройки
       loadGlobalSettings();
+
+      let panelTransitioning = false;
     }, 350);
   }
 
@@ -748,6 +776,8 @@
     hitrevilScreenOpen = false;
 
     if (hitrevilScreen) hitrevilScreen.classList.remove('active');
+
+    let panelTransitioning = true;
 
     setTimeout(function() {
       panelScreen.classList.add('active');
@@ -759,6 +789,8 @@
 
       loadStats();
       if (!refreshTimer) refreshTimer = setInterval(loadStats, 15000);
+
+      let panelTransitioning = false;
     }, 300);
   }
 
