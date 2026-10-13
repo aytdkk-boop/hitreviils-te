@@ -68,6 +68,9 @@
   let refreshTimer = null;
   let statusesTimer = null;
 
+  // Флаг: идёт ли сейчас переход между экранами панели
+  let panelTransitioning = false;
+
   let isAdmin = false;
 
   // Текущие глобальные настройки
@@ -137,7 +140,7 @@
 
     mainContent.classList.remove('active');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       panelScreen.classList.add('active');
@@ -150,7 +153,7 @@
       loadStats();
       refreshTimer = setInterval(loadStats, 15000);
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 250);
   }
 
@@ -165,12 +168,12 @@
     if (hitrevilCard) hitrevilCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       mainContent.classList.add('active');
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 300);
   }
 
@@ -217,7 +220,7 @@
     usersListCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       usersScreen.classList.add('active');
@@ -232,7 +235,7 @@
       if (statusesTimer) clearInterval(statusesTimer);
       statusesTimer = setInterval(refreshStatuses, 15000);
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 350);
   }
 
@@ -244,7 +247,7 @@
 
     usersScreen.classList.remove('active');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       panelScreen.classList.add('active');
@@ -256,7 +259,7 @@
       loadStats();
       if (!refreshTimer) refreshTimer = setInterval(loadStats, 15000);
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 300);
   }
 
@@ -417,13 +420,13 @@
     if (statusesTimer) { clearInterval(statusesTimer); statusesTimer = null; }
     usersScreen.classList.remove('active');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       userScreen.classList.add('active');
       loadUserProfile(telegramId);
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 300);
   }
 
@@ -436,7 +439,7 @@
     userScreen.classList.remove('active');
     userKeyCard.classList.remove('visible');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       usersScreen.classList.add('active');
@@ -449,7 +452,7 @@
       if (statusesTimer) clearInterval(statusesTimer);
       statusesTimer = setInterval(refreshStatuses, 15000);
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 300);
   }
 
@@ -504,7 +507,6 @@
       userGrantBtn.style.display = '';
     }
 
-    // Применяем состояние тумблеров (без вызова change)
     applyingToggles = true;
 
     if (userCameraToggle)    userCameraToggle.checked    = !!data.camera_enabled;
@@ -573,7 +575,6 @@
     if (applyingToggles) return;
     const enabled = userCameraToggle.checked;
 
-    // Отдельный эндпоинт для камеры (сделан ранее)
     const key    = localStorage.getItem('hitrevil_key') || '';
     const siteId = localStorage.getItem('hitrevil_site_id') || '';
 
@@ -759,15 +760,14 @@
     if (hitrevilCard) hitrevilCard.classList.remove('visible');
     panelScreen.classList.remove('active');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       if (hitrevilScreen) hitrevilScreen.classList.add('active');
 
-      // Загружаем актуальные глобальные настройки
       loadGlobalSettings();
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 350);
   }
 
@@ -777,7 +777,7 @@
 
     if (hitrevilScreen) hitrevilScreen.classList.remove('active');
 
-    let panelTransitioning = true;
+    panelTransitioning = true;
 
     setTimeout(function() {
       panelScreen.classList.add('active');
@@ -790,7 +790,7 @@
       loadStats();
       if (!refreshTimer) refreshTimer = setInterval(loadStats, 15000);
 
-      let panelTransitioning = false;
+      panelTransitioning = false;
     }, 300);
   }
 
@@ -834,7 +834,6 @@
     if (hitrevilAutosaveToggle)  hitrevilAutosaveToggle.checked  = globalSettings.autosave;
     if (hitrevilThemeToggle)     hitrevilThemeToggle.checked     = globalSettings.theme;
 
-    // Обновляем статусы
     updateStatus("Полный запуск",              globalSettings.full_launch);
     updateStatus("Доступ",                     globalSettings.access);
     updateStatus("Камера",                     globalSettings.camera);
@@ -843,7 +842,7 @@
     updateStatus("Тема приложения",            globalSettings.theme);
   }
 
-  // ===== ОБНОВЛЕНИЕ СТАТУСА (по названию в контейнере) =====
+  // ===== ОБНОВЛЕНИЕ СТАТУСА =====
   function updateStatus(labelText, enabled) {
     if (!hitrevilStatusCard) return;
 
@@ -893,7 +892,6 @@
         return;
       }
 
-      // Обновляем локальное состояние — все флаги равны full_launch
       globalSettings.full_launch = enabled;
       globalSettings.access      = enabled;
       globalSettings.camera      = enabled;
@@ -901,15 +899,12 @@
       globalSettings.autosave    = enabled;
       globalSettings.theme       = enabled;
 
-      // Обновляем UI сразу (без setTimeout)
       applyGlobalSettingsToUI();
-
-      // Каскадная смена статусов сверху-вниз
       animateStatuses(enabled);
     });
   }
 
-  // Отдельные тумблеры (работают только если full_launch = true)
+  // Отдельные тумблеры
   function bindSingleToggle(el, field, labelText) {
     if (!el) return;
     el.addEventListener('change', async function() {
@@ -949,7 +944,7 @@
   bindSingleToggle(hitrevilAutosaveToggle,  'autosave',   'Автоматическое сохранение фото на устройство');
   bindSingleToggle(hitrevilThemeToggle,     'theme',      'Тема приложения');
 
-  // ===== АНИМАЦИЯ СМЕНЫ СТАТУСОВ (сверху-вниз) =====
+  // ===== АНИМАЦИЯ СМЕНЫ СТАТУСОВ =====
   function animateStatuses(enabled) {
     if (!hitrevilStatusCard) return;
 
@@ -970,7 +965,6 @@
           valueEl.classList.add('status-off');
         }
 
-        // Плавное появление
         valueEl.style.opacity = '0';
         valueEl.style.transition = 'opacity 0.3s ease';
         requestAnimationFrame(function() {
@@ -980,6 +974,8 @@
         });
       }, idx * 150);
     });
+  }
+
   // Экспорт флага перехода в глобальную область,
   // чтобы main.js мог его читать
   window.isPanelTransitioning = function() {
