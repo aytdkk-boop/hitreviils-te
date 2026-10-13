@@ -980,6 +980,10 @@
         });
       }, idx * 150);
     });
-  }
+  // Экспорт флага перехода в глобальную область,
+  // чтобы main.js мог его читать
+  window.isPanelTransitioning = function() {
+    return panelTransitioning;
+  };
 
 })();
