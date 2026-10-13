@@ -444,6 +444,29 @@ function showGlobalOff() {
     });
 }
 
+  function hideGlobalOff() {
+    if (!globalOffActive) return;
+    globalOffActive = false;
+
+    const overlay = document.getElementById('globalOffActivationOverlay');
+    if (overlay) overlay.classList.remove('active');
+
+    // Возвращаем форму активации, если пользователь ещё не активирован
+    let activated = false;
+    try {
+      activated = localStorage.getItem('hitrevil_activated') === 'true';
+    } catch (e) {}
+
+    if (!activated) {
+      modalOverlay.classList.remove('hidden');
+      modal.classList.remove('fade-out');
+    } else {
+      // Пользователь активирован — показываем главную
+      const mc = document.getElementById('mainContent');
+      if (mc) mc.classList.add('active');
+    }
+  }
+
   // ===== ОКОШКО «ДОСТУП ЗАКРЫТ» =====
   function showAccessDenied() {
     modalOverlay.classList.add('hidden');
