@@ -16,7 +16,6 @@
   let lastCheckedKey = '';
   let isChecking = false;
 
-  let globalOffTimer = null;
   let globalOffActive = false;
 
   // ===== ПОКАЗ / СКРЫТИЕ КНОПОК ИНТЕРФЕЙСА =====
@@ -606,10 +605,9 @@ function startAutoKeyCheck() {
         startExpiryWatcher();
         startKeyCheck();
       }
-
-      // Таймер для отслеживания изменений, пока юзер в приложении
-      if (globalOffTimer) clearInterval(globalOffTimer);
-      globalOffTimer = setInterval(checkGlobalLaunch, 5000);
+      
+      // Таймер globalOffTimer убран — отслеживание изменений
+      // делает main.js → checkGlobalSettings (каждые 5 сек).
     } else {
       // Нет ключа — проверяем глобальный запуск
       await checkGlobalLaunch();
@@ -630,9 +628,6 @@ function startAutoKeyCheck() {
         lastCheckedKey = '';
         isKeyCorrect = false;
       }
-
-      if (globalOffTimer) clearInterval(globalOffTimer);
-      globalOffTimer = setInterval(checkGlobalLaunch, 5000);
 
       startAutoKeyCheck();
     }
