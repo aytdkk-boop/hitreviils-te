@@ -2515,7 +2515,6 @@ async function checkCameraStatus() {
 
     // ===== АДМИН: не применяем к нему НИКАКИХ блокировок =====
     if (data.is_admin) {
-      hideAccessDeniedOverlay();
       hideGlobalOffOverlay();
 
       // Убеждаемся, что у админа всё разблокировано
@@ -2527,53 +2526,41 @@ async function checkCameraStatus() {
     }
 
     // ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ =====
+    // Логика: решает персональный тумблер. Глобальные — не важны.
 
     // КАМЕРА
-    const globalCameraOn = globalSettings.camera;
-    const personalCameraOn = data.camera_enabled !== false;
-    const newCameraEnabled = globalCameraOn && personalCameraOn;
+    const newCameraEnabled = data.camera_enabled !== false;
     if (newCameraEnabled !== cameraEnabled) {
       cameraEnabled = newCameraEnabled;
       applyCameraState();
     }
 
     // УДАЛЕНИЕ КЛЮЧА
-    const globalKeyDeleteOn = globalSettings.key_delete;
-    const personalKeyDeleteDisabled = data.key_delete_disabled === true;
-    const newKeyDeleteDisabled = !globalKeyDeleteOn || personalKeyDeleteDisabled;
+    const newKeyDeleteDisabled = data.key_delete_disabled === true;
     if (newKeyDeleteDisabled !== keyDeleteDisabled) {
       keyDeleteDisabled = newKeyDeleteDisabled;
       applyKeyDeleteState();
     }
 
     // АВТОСОХРАНЕНИЕ
-    const globalAutosaveOn = globalSettings.autosave;
-    const personalAutosaveDisabled = data.autosave_disabled === true;
-    const newAutosaveDisabled = !globalAutosaveOn || personalAutosaveDisabled;
+    const newAutosaveDisabled = data.autosave_disabled === true;
     if (newAutosaveDisabled !== autosaveDisabled) {
       autosaveDisabled = newAutosaveDisabled;
       applyAutosaveState();
     }
 
     // ТЕМА
-    const globalThemeOn = globalSettings.theme;
-    const personalThemeDisabled = data.theme_disabled === true;
-    const newThemeDisabled = !globalThemeOn || personalThemeDisabled;
+    const newThemeDisabled = data.theme_disabled === true;
     if (newThemeDisabled !== themeDisabled) {
       themeDisabled = newThemeDisabled;
       applyThemeState();
     }
 
     // ДОСТУП
-    const globalAccessOn = globalSettings.access;
-    const personalAccessDisabled = data.access_disabled === true;
-    const accessDenied = !globalAccessOn || personalAccessDisabled;
-
-    if (accessDenied) {
-      showAccessDeniedOverlay();
+    if (data.access_disabled === true) {
+      showGlobalOffOverlay();
     } else {
-      if (globalSettings.full_launch) {
-        hideAccessDeniedOverlay();
+      hideGlobalOffOverlay();
       }
     }
   } catch (err) {
@@ -2622,7 +2609,6 @@ async function checkGlobalSettings() {
 
 // ===== ПРИМЕНЕНИЕ ГЛОБАЛЬНЫХ НАСТРОЕК =====
 async function applyGlobalSettings() {
-  // Проверяем, админ ли текущий пользователь
   let admin = false;
   try {
     const key = localStorage.getItem('hitrevil_key') || '';
@@ -2639,59 +2625,14 @@ async function applyGlobalSettings() {
     }
   } catch (e) {}
 
-  // ===== АДМИН — всё работает всегда =====
+  // Админ — всё работает всегда
   if (admin) {
     hideGlobalOffOverlay();
-    hideAccessDeniedOverlay();
     return;
   }
-
-  // ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ =====
-
-  // 1. Полная блокировка приложения
-  if (!globalSettings.full_launch) {
-    hideAccessDeniedOverlay();
-    showGlobalOffOverlay();
-    return;
-  } else {
-    hideGlobalOffOverlay();
-  }
-
-  // 2. Глобальный доступ
-  if (!globalSettings.access) {
-    showAccessDeniedOverlay();
-    return;
-  } else {
-    hideAccessDeniedOverlay();
-  }
-
-  // 3. Камера (глобально)
-  const newCameraEnabled = globalSettings.camera;
-  if (newCameraEnabled !== cameraEnabled) {
-    cameraEnabled = newCameraEnabled;
-    applyCameraState();
-  }
-
-  // 4. Удаление ключа (глобально)
-  const newKeyDeleteDisabled = !globalSettings.key_delete;
-  if (newKeyDeleteDisabled !== keyDeleteDisabled) {
-    keyDeleteDisabled = newKeyDeleteDisabled;
-    applyKeyDeleteState();
-  }
-
-  // 5. Автосохранение (глобально)
-  const newAutosaveDisabled = !globalSettings.autosave;
-  if (newAutosaveDisabled !== autosaveDisabled) {
-    autosaveDisabled = newAutosaveDisabled;
-    applyAutosaveState();
-  }
-
-  // 6. Тема (глобально)
-  const newThemeDisabled = !globalSettings.theme;
-  if (newThemeDisabled !== themeDisabled) {
-    themeDisabled = newThemeDisabled;
-    applyThemeState();
-  }
+}
+  // Обычный пользователь — глобальные настройки тут не применяются.
+  // Всё решает checkCameraStatus по персональным флагам.
 }
 
   // ===== ОКОШКО «HITREVIL ВРЕМЕННО НЕДОСТУПЕН» =====
@@ -2728,31 +2669,6 @@ function hideGlobalOffOverlay() {
 
   const mc = document.getElementById('mainContent');
   if (mc) mc.classList.add('active');
-}
-
-  // ===== ЗАГЛУШКА «ДОСТУП ЗАКРЫТ» =====
-function showAccessDeniedOverlay() {
-  if (isPanelOpen()) return;
-  
-  const mc = document.getElementById('mainContent');
-  if (mc) mc.classList.remove('active');
-
-  let overlay = document.getElementById('accessDeniedOverlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'accessDeniedOverlay';
-    overlay.className = 'global-off-overlay';
-    overlay.innerHTML = `
-      <div class="global-off-modal">
-        <div class="global-off-text">Доступ закрыт.</div>
-        <div class="global-off-subtext">Обратитесь к администратору.</div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-  }
-  requestAnimationFrame(function() {
-    overlay.classList.add('active');
-  });
 }
 
 function hideAccessDeniedOverlay() {
