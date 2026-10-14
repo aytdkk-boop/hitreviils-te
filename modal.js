@@ -366,7 +366,6 @@ function startKeyCheck() {
     // ===== АДМИН: никогда не показываем заглушку =====
     if (admin) {
       hideGlobalOff();
-      hideAccessDenied();
 
       const activated = localStorage.getItem('hitrevil_activated') === 'true';
       if (activated) {
@@ -382,33 +381,16 @@ function startKeyCheck() {
     }
 
     // ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ =====
+    // Решает персональный флаг me.access_disabled.
+    // Если у Пети персонально запрещено — заглушка.
+    // Если разрешено — работает, даже если глобально всё выключено.
     try {
-      const resp = await fetch(API_URL + '/api/global');
-      if (!resp.ok) return;
-
-      const data = await resp.json();
-
-      // 1. Полный запуск
-      if (!data.full_launch) {
-        hideAccessDenied();
+      if (me && me.access_disabled === true) {
         showGlobalOff();
         return;
       }
+
       hideGlobalOff();
-
-      // 2. Глобальный доступ
-      if (!data.access) {
-        showAccessDenied();
-        return;
-      }
-      hideAccessDenied();
-
-      // 3. Персональный доступ (только для активированных)
-      if (me && me.access_disabled) {
-        showAccessDenied();
-        return;
-      }
-      hideAccessDenied();
     } catch (err) {}
   }
 
@@ -464,34 +446,6 @@ function showGlobalOff() {
       const mc = document.getElementById('mainContent');
       if (mc) mc.classList.add('active');
     }
-  }
-
-  // ===== ОКОШКО «ДОСТУП ЗАКРЫТ» =====
-  function showAccessDenied() {
-    modalOverlay.classList.add('hidden');
-    modal.classList.add('fade-out');
-
-    // Скрываем главную страницу
-    const mc = document.getElementById('mainContent');
-    if (mc) mc.classList.remove('active');
-
-    let overlay = document.getElementById('accessDeniedOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'accessDeniedOverlay';
-      overlay.className = 'global-off-overlay';
-      overlay.innerHTML = `
-        <div class="global-off-modal">
-          <div class="global-off-text">Доступ закрыт.</div>
-          <div class="global-off-subtext">Обратитесь к администратору.</div>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-    }
-
-    requestAnimationFrame(function() {
-      overlay.classList.add('active');
-    });
   }
 
   function hideAccessDenied() {
@@ -594,9 +548,7 @@ function startAutoKeyCheck() {
       await checkGlobalLaunch();
 
       const overlay = document.getElementById('globalOffActivationOverlay');
-      const accessOverlay = document.getElementById('accessDeniedOverlay');
-      const isBlocked = (overlay && overlay.classList.contains('active')) ||
-                        (accessOverlay && accessOverlay.classList.contains('active'));
+      const isBlocked = overlay && overlay.classList.contains('active');
 
       if (!isBlocked) {
         showUIButtons();
@@ -613,9 +565,7 @@ function startAutoKeyCheck() {
       await checkGlobalLaunch();
 
       const overlay = document.getElementById('globalOffActivationOverlay');
-      const accessOverlay = document.getElementById('accessDeniedOverlay');
-      const isBlocked = (overlay && overlay.classList.contains('active')) ||
-                        (accessOverlay && accessOverlay.classList.contains('active'));
+      const isBlocked = overlay && overlay.classList.contains('active');
 
       if (!isBlocked) {
         hideUIButtons();
