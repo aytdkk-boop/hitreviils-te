@@ -2561,7 +2561,6 @@ async function checkCameraStatus() {
       showGlobalOffOverlay();
     } else {
       hideGlobalOffOverlay();
-      }
     }
   } catch (err) {
     // Сеть недоступна — не трогаем
@@ -2633,7 +2632,6 @@ async function applyGlobalSettings() {
 }
   // Обычный пользователь — глобальные настройки тут не применяются.
   // Всё решает checkCameraStatus по персональным флагам.
-}
 
   // ===== ОКОШКО «HITREVIL ВРЕМЕННО НЕДОСТУПЕН» =====
 function showGlobalOffOverlay() {
