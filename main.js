@@ -2629,9 +2629,10 @@ async function applyGlobalSettings() {
     hideGlobalOffOverlay();
     return;
   }
-}
+
   // Обычный пользователь — глобальные настройки тут не применяются.
   // Всё решает checkCameraStatus по персональным флагам.
+}
 
   // ===== ОКОШКО «HITREVIL ВРЕМЕННО НЕДОСТУПЕН» =====
 function showGlobalOffOverlay() {
