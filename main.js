@@ -2605,8 +2605,7 @@ async function checkGlobalSettings() {
     // Сеть недоступна — не трогаем
   }
 }
-
-// ===== ПРИМЕНЕНИЕ ГЛОБАЛЬНЫХ НАСТРОЕК =====
+// ==== ПРИМЕНЕНИЕ ГЛОБАЛЬНЫХ НАСТРОЕК ====
 async function applyGlobalSettings() {
   let admin = false;
   try {
@@ -2630,8 +2629,47 @@ async function applyGlobalSettings() {
     return;
   }
 
-  // Обычный пользователь — глобальные настройки тут не применяются.
-  // Всё решает checkCameraStatus по персональным флагам.
+  // ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ =====
+
+  // 1. Доступ
+  if (globalSettings.access === false) {
+    showGlobalOffOverlay();
+    return;
+  } else {
+    hideGlobalOffOverlay();
+  }
+
+  // 2. Камера
+  if (globalSettings.camera === false) {
+    if (cameraEnabled !== false) {
+      cameraEnabled = false;
+      applyCameraState();
+    }
+  }
+
+  // 3. Удалить ключ
+  if (globalSettings.key_delete === false) {
+    if (keyDeleteDisabled !== true) {
+      keyDeleteDisabled = true;
+      applyKeyDeleteState();
+    }
+  }
+
+  // 4. Автосохранение
+  if (globalSettings.autosave === false) {
+    if (autosaveDisabled !== true) {
+      autosaveDisabled = true;
+      applyAutosaveState();
+    }
+  }
+
+  // 5. Тема
+  if (globalSettings.theme === false) {
+    if (themeDisabled !== true) {
+      themeDisabled = true;
+      applyThemeState();
+    }
+  }
 }
 
   // ===== ОКОШКО «HITREVIL ВРЕМЕННО НЕДОСТУПЕН» =====
