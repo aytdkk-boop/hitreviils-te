@@ -124,7 +124,7 @@
 
   // Экспортируем функцию — main.js вызовет её после активации.
   // Обёртку onSiteActivated убрали: main.js перезаписывает её позже и затирает нашу.
-. window.setupBurgerVisibility = setupBurgerVisibility;
+  window.setupBurgerVisibility = setupBurgerVisibility;
 
   // ===== ПАНЕЛЬ УПРАВЛЕНИЯ =====
   function openPanel() {
