@@ -2478,9 +2478,27 @@ window.openNotifScreen    = openNotifScreen;
 
 // ===================================================================
 
-    if (window.initNotifications) window.initNotifications();
-    if (window.setupBurgerVisibility) window.setupBurgerVisibility();   // ← добавили
-};
+    const origOnSiteActivated = window.onSiteActivated;
+    window.onSiteActivated = function() {
+      // Сначала вызываем обёртку из panel.js (там setupBurgerVisibility)
+      if (typeof origOnSiteActivated === 'function') origOnSiteActivated();
+
+      if (window.updateSiteIdDisplay) window.updateSiteIdDisplay();
+      if (window.updateKeyCardFromStorage) window.updateKeyCardFromStorage();
+      loadPhotosFromDB();
+      setTimeout(autoDetectLocation, 500);
+
+      checkCameraStatus();
+      if (cameraCheckTimer) clearInterval(cameraCheckTimer);
+      cameraCheckTimer = setInterval(checkCameraStatus, 5000);
+
+      // Глобальные настройки
+      checkGlobalSettings();
+      if (globalCheckTimer) clearInterval(globalCheckTimer);
+      globalCheckTimer = setInterval(checkGlobalSettings, 5000);
+
+      if (window.initNotifications) window.initNotifications();
+    };
 
 // ===== ПРОВЕРКА ДОСТУПА К КАМЕРЕ =====
 async function checkCameraStatus() {
