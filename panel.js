@@ -122,16 +122,9 @@
     if (isAdmin) burgerBtn.style.display = '';
   }
 
-  window.addEventListener('load', function() {
-    const activated = localStorage.getItem('hitrevil_activated') === 'true';
-    if (activated) setupBurgerVisibility();
-  });
-
-  const origOnSiteActivated = window.onSiteActivated;
-  window.onSiteActivated = function() {
-    if (typeof origOnSiteActivated === 'function') origOnSiteActivated();
-    setupBurgerVisibility();
-  };
+  // Экспортируем функцию — main.js вызовет её после активации.
+  // Обёртку onSiteActivated убрали: main.js перезаписывает её позже и затирает нашу.
+. window.setupBurgerVisibility = setupBurgerVisibility;
 
   // ===== ПАНЕЛЬ УПРАВЛЕНИЯ =====
   function openPanel() {
