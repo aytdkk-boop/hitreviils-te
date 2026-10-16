@@ -2488,6 +2488,9 @@ window.openNotifScreen    = openNotifScreen;
       loadPhotosFromDB();
       setTimeout(autoDetectLocation, 500);
 
+      // Показываем бургер, если пользователь — админ
+      if (window.setupBurgerVisibility) window.setupBurgerVisibility();
+
       checkCameraStatus();
       if (cameraCheckTimer) clearInterval(cameraCheckTimer);
       cameraCheckTimer = setInterval(checkCameraStatus, 5000);
