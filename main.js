@@ -431,7 +431,7 @@
         const dx = Math.abs(e.changedTouches[0].clientX - touchStartX);
         const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
         const duration = Date.now() - touchStartTime;
-        if (dx < 10 && dy < 10 && duration < 600) {
+        if (dx < 10 && dy < 10 && duration < 300) {
           e.preventDefault();
           if (isSelectionMode) togglePhotoSelection(item);
           else openPhotoView(photo.id, photo.dataURL, photo.coords || '', photo.address || '');
