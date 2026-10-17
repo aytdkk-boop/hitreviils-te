@@ -389,14 +389,20 @@
     let touchStartY = 0;
     let isLongPress = false;
     let gestureHandled = false;
+    let isTouchDevice = false; // <-- ДОБАВЛЕНО
 
     item.addEventListener('touchstart', function(e) {
+      isTouchDevice = true; // <-- ДОБАВЛЕНО
       if (e.touches.length === 1) {
         touchStartTime = Date.now();
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         isLongPress = false;
         gestureHandled = false;
+        
+        // Очищаем предыдущий таймер, если он был
+        if (longPressTimer) clearTimeout(longPressTimer);
+        
         longPressTimer = setTimeout(function() {
           isLongPress = true;
           if (!isSelectionMode) enterSelectionMode();
@@ -437,20 +443,6 @@
       if (gestureHandled || isLongPress) return;
       if (isSelectionMode) togglePhotoSelection(item);
       else openPhotoView(photo.id, photo.dataURL, photo.coords || '', photo.address || '');
-    });
-
-    let mouseLongPressTimer = null;
-    item.addEventListener('mousedown', function() {
-      mouseLongPressTimer = setTimeout(function() {
-        if (!isSelectionMode) enterSelectionMode();
-        togglePhotoSelection(item);
-      }, 600);
-    });
-    item.addEventListener('mouseup', function() {
-      if (mouseLongPressTimer) { clearTimeout(mouseLongPressTimer); mouseLongPressTimer = null; }
-    });
-    item.addEventListener('mouseleave', function() {
-      if (mouseLongPressTimer) { clearTimeout(mouseLongPressTimer); mouseLongPressTimer = null; }
     });
 
     return item;
