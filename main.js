@@ -1817,22 +1817,35 @@
 
   // ===== ОТКРЫТИЕ КАМЕРЫ =====
   async function openCamera() {
-    document.body.classList.add('fade-out');
-    await new Promise(r => setTimeout(r, 500));
+    // 1. СРАЗУ показываем черный экран камеры
+    cameraScreen.classList.add('active');
+    document.body.classList.remove('fade-out');
+    
+    // Сбрасываем старые данные
+    flashlightOn = false;
+    flashlightBtn.classList.remove('active');
+    lastPhotoDataURL = '';
+    cameraThumbImg.classList.remove('visible');
+    cameraThumbImg.src = '';
+
+    // 2. Запрашиваем доступ к камере
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } },
         audio: false
       });
+      
       const oldVideo = document.getElementById('cameraVideo');
       if (oldVideo && oldVideo.parentNode) oldVideo.parentNode.removeChild(oldVideo);
+      
       const video = document.createElement('video');
       video.id = 'cameraVideo';
       video.autoplay = true;
       video.playsInline = true;
       video.muted = true;
       video.setAttribute('playsinline', '');
-      video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;opacity:0;transition:opacity 0.2s ease;';
+      // Видео изначально прозрачное
+      video.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;opacity:0;transition:opacity 0.3s ease;';
       cameraScreen.insertBefore(video, cameraScreen.firstChild);
       video.srcObject = cameraStream;
 
@@ -1840,23 +1853,18 @@
       const revealVideo = function() {
         if (revealed) return;
         revealed = true;
-        video.style.opacity = '1';
+        video.style.opacity = '1'; // Плавно проявляем видео
       };
       video.addEventListener('loadedmetadata', revealVideo);
       video.addEventListener('playing', revealVideo);
       setTimeout(revealVideo, 600);
 
-      cameraScreen.classList.add('active');
-      document.body.classList.remove('fade-out');
-      flashlightOn = false;
-      flashlightBtn.classList.remove('active');
-      lastPhotoDataURL = '';
-      cameraThumbImg.classList.remove('visible');
-      cameraThumbImg.src = '';
     } catch (err) {
       console.error('Ошибка доступа к камере:', err);
+      // Если ошибка — закрываем экран камеры и показываем ошибку
+      cameraScreen.classList.remove('active');
+      document.body.classList.add('fade-in');
       alert('Не удалось получить доступ к камере. Проверьте разрешения.');
-      document.body.classList.remove('fade-out');
     }
   }
 
