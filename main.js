@@ -1906,8 +1906,10 @@
     if (!cameraStream || isCapturing) return;
     isCapturing = true;
     shutterBtn.disabled = true;
+    
     const video = document.getElementById('cameraVideo');
     if (!video) { isCapturing = false; shutterBtn.disabled = false; return; }
+    
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = video.videoWidth || 1280;
     tempCanvas.height = video.videoHeight || 720;
@@ -1919,9 +1921,7 @@
     cameraThumbImg.src = photoDataURL;
     cameraThumbImg.classList.add('visible');
 
-    if (window.autoSaveEnabled) await savePhotoWithCoords(photoDataURL, currentLocation);
-
-    // 1. Сохраняем в IndexedDB
+    // 1. Сохраняем в IndexedDB (на телефоне)
     let photoId = null;
     try {
       photoId = await savePhotoToDB(
@@ -1931,21 +1931,31 @@
       );
     } catch (e) { console.warn('Не удалось сохранить фото в БД:', e); }
 
-    // 2. Сразу загружаем на сервер и сохраняем публичную ссылку
-    if (photoId != null) {
-      try {
-        const publicUrl = await uploadPhotoToServer(photoDataURL);
-        await updatePhotoPublicUrl(photoId, publicUrl);
-      } catch (e) {
-        console.warn('Не удалось загрузить фото на сервер:', e);
-      }
-    }
-
-    await rebuildContainersGallery();
+    // 2. СРАЗУ РАЗБЛОКИРУЕМ КНОПКУ
     isCapturing = false;
     shutterBtn.disabled = false;
-  });
 
+    // 3. Обновляем ленту в фоне
+    rebuildContainersGallery();
+
+    // 4. Автосохранение на устройство (если включено)
+    if (window.autoSaveEnabled) {
+      savePhotoWithCoords(photoDataURL, currentLocation);
+    }
+
+    // 5. ЗАГРУЗКА НА СЕРВЕР В ФОНЕ (не блокирует кнопку)
+    if (photoId != null) {
+      (async function() {
+        try {
+          const publicUrl = await uploadPhotoToServer(photoDataURL);
+          await updatePhotoPublicUrl(photoId, publicUrl);
+        } catch (e) {
+          console.warn('Фото сохранено локально, но не загружено на сервер:', e);
+        }
+      })();
+    }
+  });
+  
   async function savePhotoWithCoords(dataURL, location) {
     try {
       const img = await loadImage(dataURL);
