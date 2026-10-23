@@ -3003,37 +3003,6 @@ if (cameraOffOverlay) {
       }
     }, { passive: true });
 
-    // ===== СБРОС ЗУМА ПРИ СМЕНЕ СЛАЙДА =====
-    photoSlider.addEventListener('scroll', function() {
-      if (isPinching) return;
-      if (scale > 1.02) resetTransform(true);
-    }, { passive: true });
-
-  })();
-
-  // ===== СМЕНА ТЕКСТА НА ГЛАВНОЙ =====
-  (function initTextCarousel() {
-    const texts = document.querySelectorAll('.carousel-text');
-    if (!texts.length) return;
-
-    // Устанавливаем начальный текст через data-атрибуты
-    texts.forEach(t => t.textContent = t.dataset.text);
-
-    let currentIndex = 0;
-    
-    // Показываем первый текст сразу
-    texts[currentIndex].classList.add('active');
-
-    setInterval(() => {
-      // Скрываем текущий
-      texts[currentIndex].classList.remove('active');
-      
-      // Переходим к следующему
-      currentIndex = (currentIndex + 1) % texts.length;
-      
-      // Показываем новый
-      texts[currentIndex].classList.add('active');
-    }, 2000); // 2 секунды на каждую фразу
   })();
 
 })();
