@@ -12,52 +12,13 @@
   <div class="main-content" id="mainContent">
   <div class="site-header">
     <div class="header-top-row">
-
-<div class="header-top-row">
-  <!-- Иконка дьявола -->
-  <div class="devil-icon-wrap">
-    <svg class="devil-icon" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="red-glow">
-          <feGaussianBlur stdDeviation="2" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-      
-      <!-- Черные контуры лица -->
-      <path d="M 250 50 C 250 50 280 150 350 130 C 350 130 370 80 370 80 C 370 80 400 150 390 250 C 380 350 330 400 280 430 C 270 440 260 450 250 450 C 240 450 230 440 220 430 C 170 400 120 350 110 250 C 100 150 130 80 130 80 C 130 80 150 130 150 130 C 220 150 250 50 250 50 Z" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/>
-      
-      <!-- Брови и глаза -->
-      <path d="M 170 220 L 230 240 L 215 250 L 160 235 Z" fill="currentColor"/>
-      <path d="M 330 220 L 270 240 L 285 250 L 340 235 Z" fill="currentColor"/>
-      
-      <!-- Красные глаза (с мерцанием) -->
-      <polygon class="devil-eye" points="175,245 210,245 190,265" fill="#ff1744" filter="url(#red-glow)"/>
-      <polygon class="devil-eye" points="325,245 290,245 310,265" fill="#ff1744" filter="url(#red-glow)"/>
-      
-      <!-- Нос и пасть -->
-      <path d="M 250 260 L 240 300 L 260 300 Z" fill="none" stroke="currentColor" stroke-width="6"/>
-      <path d="M 180 350 L 210 340 L 220 360 L 240 345 L 250 365 L 260 345 L 280 360 L 290 340 L 320 350 C 300 390 280 400 250 400 C 220 400 200 390 180 350 Z" fill="none" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
-    </svg>
-  </div>
-
-  <!-- Текст с плавной сменой -->
-  <div class="text-carousel" id="textCarousel">
-    <span class="carousel-text" data-text="Ну здравствуй."></span>
-    <span class="carousel-text" data-text="Рад тебя видеть!"></span>
-    <span class="carousel-text" data-text="Готов приступить?"></span>
-    <span class="carousel-text" data-text="Начинай!"></span>
-    <span class="carousel-text" data-text="HITREVIL"></span>
-  </div>
-      
-    <button class="burger-btn" id="burgerBtn" aria-label="Меню" style="display:none;">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <line x1="4" y1="7"  x2="20" y2="7"/>
-        <line x1="4" y1="12" x2="20" y2="12"/>
-        <line x1="4" y1="17" x2="20" y2="17"/>
+      <div class="site-header">
+      <div class="site-title">HITREVIL</div>
+      <button class="burger-btn" id="burgerBtn" aria-label="Меню" style="display:none;">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <line x1="4" y1="7"  x2="20" y2="7"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="17" x2="20" y2="17"/>
       </svg>
     </button>
   </div>
