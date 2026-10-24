@@ -10,19 +10,21 @@
 
   <!-- ===== ГЛАВНАЯ СТРАНИЦА ===== -->
   <div class="main-content" id="mainContent">
-  <div class="site-header">
-    <div class="header-top-row">
-      <div class="site-header">
+    <div class="site-header">
+      <!-- Заголовок HITREVIL -->
       <div class="site-title">HITREVIL</div>
-      <button class="burger-btn" id="burgerBtn" aria-label="Меню" style="display:none;">
+
+      <!-- Кнопка бургер-меню (для админа) -->
+      <button class="burger-btn" id="burgerBtn" aria-label="Меню" style="display:none; position: absolute; right: 20px; top: 20px;">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <line x1="4" y1="7"  x2="20" y2="7"/>
           <line x1="4" y1="12" x2="20" y2="12"/>
           <line x1="4" y1="17" x2="20" y2="17"/>
-      </svg>
-    </button>
-  </div>
-  <div class="location-block" id="locationBlock">
+        </svg>
+      </button>
+
+      <!-- Определение местоположения -->
+      <div class="location-block" id="locationBlock">
         <div class="location-loading" id="locationLoading">
           <span class="location-spinner"></span>
           <span class="location-loading-text">Определение местоположения</span>
